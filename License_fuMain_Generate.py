@@ -9,6 +9,7 @@ sys.path = [sMainFolderPath, sParentFolderPath, sModulesFolderPath] + sys.path;
 from mProductVersionAndLicense.cDate import cDate;
 from mProductVersionAndLicense.cProductDetails import cProductDetails;
 from mProductVersionAndLicense.cLicenseConfiguration import cLicenseConfiguration;
+from mProductVersionAndLicense.cLicenseCheckServer import cLicenseCheckServer;
 
 # Restore the search path
 sys.path = asOriginalSysPath;
@@ -161,7 +162,11 @@ def License_fuMain_Generate(sMainScriptName, sFeatureName, asArguments):
   print oLicense.sLicenseBlock;
   # Check to make sure the server considers the license valid, but do not cache the result in the registry as this
   # may not be our own certificate:
-  oLicense.fCheckWithServer(oProductDetails.oLicenseCheckServer, bWriteToRegistry = False);
+  try:
+    oLicense.fCheckWithServer(oProductDetails.oLicenseCheckServer, bWriteToRegistry = False);
+  except cLicenseCheckServer.cServerErrorException, oServerErrorException:
+    print "- The server reported an error: %s" % oServerErrorException.sMessage;
+    return 2;
   if not oLicense.bIsValid:
     print "- The server reported the new generated license as invalid!";
     return 2;
