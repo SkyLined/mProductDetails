@@ -1,4 +1,4 @@
-import json, urllib;
+import json, urllib, ssl;
 
 from .cDataStructure import cDataStructure;
 from .cDate import cDate;
@@ -9,8 +9,9 @@ class cLicenseCheckServer(object):
   class cServerErrorException(cErrorException):
     pass;
 
-  def __init__(oSelf, sServerURL):
+  def __init__(oSelf, sServerURL, sServerCertificateFilePath = None):
     oSelf.sServerURL = sServerURL;
+    oSelf.sServerCertificateFilePath = sServerCertificateFilePath; # For use with site-pinning.
   
   def foGetLicenseCheckResult(oSelf, xUnused = None, sLicenseBlock = None, sProductName = None, sLicenseVersion = None):
     assert xUnused is None, \
@@ -26,8 +27,9 @@ class cLicenseCheckServer(object):
       "sLicenseVersion": sLicenseVersion,
       "sProductName": sProductName,
     });
+    oSSLContext = ssl.create_default_context(cafile = oSelf.sServerCertificateFilePath);
     try:
-      oHTTPRequest = urllib.urlopen(oSelf.sServerURL, sPostData);
+      oHTTPRequest = urllib.urlopen(oSelf.sServerURL, sPostData, context = oSSLContext);
     except Exception as oException:
       raise cLicenseCheckServer.cServerErrorException("The license server could not be contacted (error: %s)" % repr(oException));
     uStatusCode = oHTTPRequest.getcode();
@@ -45,7 +47,7 @@ class cLicenseCheckServer(object):
     oJSONServerResponeStructure = cDataStructure(
       (
         { # Two options: an error...
-          "sError": "date",
+          "sError": "string",
         },
         cDataStructure(
           { # ... or a result.
@@ -63,7 +65,7 @@ class cLicenseCheckServer(object):
         sJSONData = sLicenseCheckResultJSONData,
         sDataNameInError = "The license server response",
       );
-    except cDataStructure.cSyntaxErrorException, oSyntaxErrorException:
+    except cDataStructure.cJSONSyntaxErrorException, oSyntaxErrorException:
       raise cLicenseCheckServer.cServerErrorException(oSyntaxErrorException.sMessage);
     
     if not oLicenseCheckResult.__class__ == cLicenseCheckResult:
