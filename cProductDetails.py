@@ -5,10 +5,14 @@ from .cDate import cDate;
 from .cGitHubRepository import cGitHubRepository;
 # The rest of the local imports are at the end to prevent import loops.
 
+gsJSONFilename = "dxProductDetails.json";
+
+# goProductDetailsDataStructure is defined at the end of the file because it must refer to cProductDetails
+
 class cProductDetails(object):
   @staticmethod
   def foReadFromFolderPath(sFolderPath):
-    return cProductDetails.foReadFromJSONFilePath(sFolderPath + r"\dxProductDetails.json");
+    return cProductDetails.foReadFromJSONFilePath(os.path.join(sFolderPath, gsJSONFilename));
   @staticmethod
   def foReadFromJSONFilePath(sFilePath):
     oFile = open(sFilePath, "rb");
@@ -24,48 +28,45 @@ class cProductDetails(object):
   
   @staticmethod
   def foFromJSONData(sProductDetailsJSONData, sDataNameInError, sBasePath):
-    oJSONFileDataStructure = cDataStructure(
-      {
-        "sProductName": "string", 
-        "oProductVersion": "version",
-        "bRequiresLicense": "boolean",
-        "sTrialPeriodDuration": ("string", "-"),
-        "sLicenseServerURL": "string",
-        "oRepository": (
-          cDataStructure(
-            {
-              "sType": "string:GitHub",
-              "sUserName": "string",
-              "sRepositoryName": "string", 
-              "sBranch": "string"
-            },
-            cGitHubRepository,
-          ),
-          # There are currently no other options
-        ),
-      },
-      cProductDetails,
-    );
-    
-    return oJSONFileDataStructure.fxParseJSON(
+    return goProductDetailsDataStructure.fxParseJSON(
       sJSONData = sProductDetailsJSONData,
       sDataNameInError = sDataNameInError,
       sBasePath = sBasePath,
     );
   
-  def __init__(oSelf, sProductName, oProductVersion, bRequiresLicense, sTrialPeriodDuration, sLicenseServerURL, oRepository):
+  def __init__(oSelf, sProductName, oProductVersion, bRequiresLicense, sTrialPeriodDuration, sLicenseServerURL, \
+      sLicenseServerCertificateFilePath, oRepository):
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
     oSelf.bRequiresLicense = bRequiresLicense;
     oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
+    oSelf.sLicenseServerCertificateFilePath = sLicenseServerCertificateFilePath;
     oSelf.oRepository = oRepository;
     
-    oSelf.oLicenseCheckServer = cLicenseCheckServer(sLicenseServerURL);
+    oSelf.oLicenseCheckServer = cLicenseCheckServer(sLicenseServerURL, sLicenseServerCertificateFilePath);
     oSelf.__oLicenseCollection = None;
     oSelf.__oLicense = None;
     oSelf.__oLatestProductDetailsFromRepository = None;
     oSelf.__bCheckedWithServer = False;
+  
+  def fbWriteToFolderPath(oSelf, sFolderPath):
+    return oSelf.fbWriteToJSONFilePath(os.path.join(sFolderPath, gsJSONFilename));
+  def fbWriteToJSONFilePath(oSelf, sFilePath):
+    sProductDetailsJSONData = goProductDetailsDataStructure.fsStringify(
+      oData = oSelf,
+      sDataNameInError = "Product details",
+      sBasePath = os.path.dirname(sFilePath),
+    );
+    try:
+      oFile = open(sFilePath, "wb");
+    except:
+      return False;
+    try:
+       oFile.write(sProductDetailsJSONData);
+    finally:
+      oFile.close();
+    return True;
   
   @property
   def oLicenseCollection(oSelf):
@@ -149,3 +150,27 @@ class cProductDetails(object):
 from .cLicenseCheckRegistry import cLicenseCheckRegistry;
 from .cLicenseCheckServer import cLicenseCheckServer;
 from .cLicenseCollection import cLicenseCollection;
+
+goProductDetailsDataStructure = cDataStructure(
+  {
+    "sProductName": "string", 
+    "oProductVersion": "version",
+    "bRequiresLicense": "boolean",
+    "sTrialPeriodDuration": ("string", "-"),
+    "sLicenseServerURL": "string",
+    "sLicenseServerCertificateFilePath": "path",
+    "oRepository": (
+      cDataStructure(
+        {
+          "sType": "string:GitHub",
+          "sUserName": "string",
+          "sRepositoryName": "string", 
+          "sBranch": "string"
+        },
+        cGitHubRepository,
+      ),
+      # There are currently no other options
+    ),
+  },
+  cProductDetails,
+);
