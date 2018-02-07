@@ -11,8 +11,18 @@ class cVersion(object):
   def foFromString(sVersion):
     oVersionMatch = grVersion.match(sVersion);
     if oVersionMatch is None: return None;
-    return cVersion(*oVersionMatch.groups());
+    return cVersion(*[long(s) for s in oVersionMatch.groups()]);
   def __init__(oSelf, uYear, uMonth, uDay, uHour, uMinute):
+    assert uYear is not None, \
+        "uYear cannot be None";
+    assert uMonth is not None, \
+        "uMonth cannot be None";
+    assert uDay is not None, \
+        "uDay cannot be None";
+    assert uHour is not None, \
+        "uHour cannot be None";
+    assert uMinute is not None, \
+        "uMinute cannot be None";
     oSelf.uYear = uYear;
     oSelf.uMonth = uMonth;
     oSelf.uDay = uDay;
