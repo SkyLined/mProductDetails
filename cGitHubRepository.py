@@ -16,7 +16,7 @@ class cGitHubRepository(object):
     oSelf.sBranch = sBranch;
     oSelf.sProductDetailsJSONURL = "https://raw.githubusercontent.com/%s/%s/%s/dxProductDetails.json" % \
       (sUserName, sRepositoryName, sBranch);
-    oSelf.sLatestVersionZipURL = "https://github.com/%s/%s/archive/%s.zip" % (sUserName, sRepositoryName, sBranch);
+    oSelf.sLatestVersionURL = "https://github.com/%s/%s/archive/%s.zip" % (sUserName, sRepositoryName, sBranch);
   
   @property
   def sLatestProductDetailsJSONData(oSelf):
