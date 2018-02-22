@@ -23,8 +23,10 @@ class cGitHubRepository(object):
     try:
       oHTTPRequest = urllib.urlopen(oSelf.sProductDetailsJSONURL);
     except Exception as oException:
-      raise cGitHubServerErrorException("Connection to %s failed with error %s." % (sProjectDetailsJSONURL, str(oException)));
+      raise cGitHubRepository.cGitHubServerErrorException("Connection to %s failed with error %s." % \
+          (sProductDetailsJSONURL, str(oException)));
     uStatusCode = oHTTPRequest.getcode();
     if uStatusCode != 200:
-      return cGitHubServerErrorException("Request for %s returned HTTP %03d." % (sProjectDetailsJSONURL, uStatusCode));
+      return cGitHubRepository.cGitHubServerErrorException("Request for %s returned HTTP %03d." % \
+          (oSelf.sProductDetailsJSONURL, uStatusCode));
     return oHTTPRequest.read();
