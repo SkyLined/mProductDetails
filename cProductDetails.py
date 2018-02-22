@@ -144,7 +144,7 @@ class cProductDetails(object):
     oSelf.oLatestProductVersion and oSelf.oProductVersion >= oSelf.oLatestProductVersion;
   
   @property
-  def oLatestProductVersion(oSelf):
+  def bVersionIsPreRelease(oSelf):
     oSelf.oLatestProductVersion and oSelf.oProductVersion > oSelf.oLatestProductVersion;
 
 from .cLicenseCheckRegistry import cLicenseCheckRegistry;
