@@ -149,7 +149,7 @@ class cLicense(object):
       # The cached check data is fresh; use it.
       oSelf.__oLicenseCheckResult = oLicenseCheckResult;
     else:
-      oLicenseCheckResult = oSelf.foCheckWithServer(oLicenseCheckServer);
+      oSelf.fCheckWithServer(oLicenseCheckServer);
   
   def fCheckWithServer(oSelf, oLicenseCheckServer, bWriteToRegistry = True):
     oSelf.__oLicenseCheckResult = None;
