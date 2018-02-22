@@ -21,7 +21,7 @@ class cGitHubRepository(object):
   @property
   def sLatestProductDetailsJSONData(oSelf):
     try:
-      oHTTPRequest = urllib.urlopen(oSelf.sProjectDetailsJSONURL);
+      oHTTPRequest = urllib.urlopen(oSelf.sProductDetailsJSONURL);
     except Exception as oException:
       raise cGitHubServerErrorException("Connection to %s failed with error %s." % (sProjectDetailsJSONURL, str(oException)));
     uStatusCode = oHTTPRequest.getcode();
