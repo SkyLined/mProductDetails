@@ -27,7 +27,7 @@ class cProductDetails(object):
     );
   
   @staticmethod
-  def foFromJSONData(sProductDetailsJSONData, sDataNameInError, sBasePath):
+  def foFromJSONData(sProductDetailsJSONData, sDataNameInError, sBasePath = None):
     return goProductDetailsDataStructure.fxParseJSON(
       sJSONData = sProductDetailsJSONData,
       sDataNameInError = sDataNameInError,
