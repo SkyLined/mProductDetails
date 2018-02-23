@@ -19,7 +19,7 @@ def fsGetHTTPResponseData(sURL, sPostData, sURLNameInException, cException):
   sData = oHTTPRequest.read();
   if uStatusCode == 404:
     raise cException("%s was not found (HTTP 404)." % sURLNameInException);
-  if uStatusCode > 500:
+  if uStatusCode >= 500:
     raise cException("%s returned an internal error code %03d." % (sURLNameInException, uStatusCode));
   if uStatusCode != 200:
     raise cException("%s returned an unexpected response code %03d." % (sURLNameInException, uStatusCode));
