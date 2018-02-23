@@ -104,15 +104,15 @@ class cLicense(object):
   def fCreateLicenseBlock(oSelf, sHashingAlgorithmName, uHashLength, sSecretKey):
     cHashingAlgorithm = gdcHashingAlgorithm_by_sName[sHashingAlgorithmName];
     asDetailsLines = [
-      "Licensed product............: %s." % oSelf.sProductName,
-      "Licensee....................: %s." % oSelf.sLicenseeName,
-      "Licensed usage type.........: %s." % oSelf.sUsageTypeDescription,
-      "Licensed instances..........: %d." % oSelf.uLicensedInstances,
-      "Valid from..................: %s." % oSelf.oStartDate,
-      "Valid to....................: %s." % oSelf.oEndDate,
-      "License id..................: %s." % oSelf.sLicenseId,
-      "License version.............: %s." % oSelf.sLicenseVersion,
-      "Full license details at.....: %s." % oSelf.sLicenseURL,
+      "Licensed product............: %s" % oSelf.sProductName,
+      "Licensee....................: %s" % oSelf.sLicenseeName,
+      "Licensed usage type.........: %s" % oSelf.sUsageTypeDescription,
+      "Licensed instances..........: %d" % oSelf.uLicensedInstances,
+      "Valid from..................: %s" % oSelf.oStartDate,
+      "Valid to....................: %s" % oSelf.oEndDate,
+      "License id..................: %s" % oSelf.sLicenseId,
+      "License version.............: %s" % oSelf.sLicenseVersion,
+      "Full license details at.....: %s" % oSelf.sLicenseURL,
     ];
     sSaltedKey = sSecretKey + oSelf.sLicenseId;
     sHMAC = hmac.new(
