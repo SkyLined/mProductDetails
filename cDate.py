@@ -13,23 +13,25 @@ class cDate(datetime.date):
     return oDateMatch and cDate(*[long(s) for s in oDateMatch.groups()]);
   
   def foEndDateForDuration(oSelf, sDuration):
-    oDurationMatch = re.match(r"(\d+)([ymd])", sDuration.lower());
-    assert oDurationMatch, \
-        "Invalid duration %s" % sDuration;
-    (sCount, sType) = oDurationMatch.groups();
-    uCount = long(sCount);
     oEndDate = cDate(oSelf.year, oSelf.month, oSelf.day);
-    if sType == "y":
-      oEndDate = oEndDate.replace(year = oEndDate.year + uCount);
-    elif sType == "m":
-      if oEndDate.month == 12:
-        oEndDate = oEndDate.replace(year = oEndDate.year + 1, month = 1);
+    for sDurationComponent in sDuration.split("+"):
+      oDurationComponentMatch = re.match(r"(\d+)([ymd])", sDurationComponent.lower());
+      assert oDurationComponentMatch, \
+          "Invalid duration %s" % sDuration;
+      (sCount, sType) = oDurationComponentMatch.groups();
+      uCount = long(sCount);
+      if sType == "y":
+        oEndDate = oEndDate.replace(year = oEndDate.year + uCount);
+      elif sType == "m":
+        uNewMonth = oEndDate.month + uCount;
+        while uNewMonth > 12:
+          oEndDate = oEndDate.replace(year = oEndDate.year + 1);
+          uNewMonth -= 12;
+        oEndDate = oEndDate.replace(month = uNewMonth);
+      elif sType == "d":
+        oEndDate += datetime.timedelta(days = uCount);
       else:
-        oEndDate = oEndDate.replace(month = oEndDate.month + 1);
-    elif sType == "d":
-      oEndDate += datetime.timedelta(days = 1);
-    else:
-      raise AssertionError("NOT REACHED");  
+        raise AssertionError("NOT REACHED");  
     return oEndDate;
   
   def __str__(oSelf):
