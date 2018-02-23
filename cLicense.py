@@ -56,7 +56,6 @@ class cLicense(object):
           xValue = sValue;
         elif sConstructorArgumentName[0] == "u":
           xValue = long(sValue);
-          
         else:
           assert sConstructorArgumentName[0] == "o" and sConstructorArgumentName.endswith("Date"), \
               "Unrecognized constructor argument type %s" % sConstructorArgumentName;
