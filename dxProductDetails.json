@@ -1,6 +1,5 @@
 {
-  "bRequiresLicense": true, 
-  "oProductVersion": "2018-02-13 10:18", 
+  "oProductVersion": "2018-02-23 10:26", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "mProductVersionAndLicense", 

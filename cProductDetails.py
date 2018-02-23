@@ -34,10 +34,9 @@ class cProductDetails(object):
       sBasePath = sBasePath,
     );
   
-  def __init__(oSelf, sProductName, oProductVersion, bRequiresLicense, sTrialPeriodDuration, sLicenseServerURL, oRepository):
+  def __init__(oSelf, sProductName, oProductVersion, sTrialPeriodDuration, sLicenseServerURL, oRepository):
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
-    oSelf.bRequiresLicense = bRequiresLicense;
     oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
     oSelf.oRepository = oRepository;
@@ -105,20 +104,19 @@ class cProductDetails(object):
   def fasGetLicenseWarnings(oSelf):
     oSelf.__fCheckLicense();
     asLicenseWarnings = [];
-    if oSelf.bRequiresLicense:
-      if oSelf.oLicense:
-        # Warn if license will expire in one month.
-        if cDate.foNow().foEndDateForDuration("1m") > oSelf.oLicense.oEndDate:
-          asLicenseWarnings.append("Your license will expire on %s" % oSelf.oLicense.oEndDate);
-      elif oSelf.bInTrialPeriod:
-        # Warn if in trial period
-        asLicenseWarnings.append("Your trial period will expire on %s" % oSelf.oTrialPeriodEndDate);
+    if oSelf.oLicense:
+      # Warn if license will expire in one month.
+      if cDate.foNow().foEndDateForDuration("1m") > oSelf.oLicense.oEndDate:
+        asLicenseWarnings.append("Your license will expire on %s" % oSelf.oLicense.oEndDate);
+    elif oSelf.bInTrialPeriod:
+      # Warn if in trial period
+      asLicenseWarnings.append("Your trial period will expire on %s" % oSelf.oTrialPeriodEndDate);
     return asLicenseWarnings;
   
   def fasGetLicenseErrors(oSelf):
     oSelf.__fCheckLicense();
     asLicenseErrors = [];
-    if oSelf.bRequiresLicense and not oSelf.oLicense and not oSelf.bInTrialPeriod:
+    if not oSelf.oLicense and not oSelf.bInTrialPeriod:
       asLicenseErrors += oSelf.oLicenseCollection.fasGetErrors(oSelf.sProductName);
       if oSelf.bHasTrialPeriod and not oSelf.bInTrialPeriod:
         asLicenseErrors.append("Your trial period expired on %s" % oSelf.oTrialPeriodEndDate);
@@ -153,7 +151,6 @@ goProductDetailsDataStructure = cDataStructure(
   {
     "sProductName": "string", 
     "oProductVersion": "version",
-    "bRequiresLicense": "boolean",
     "sTrialPeriodDuration": ("string", "-"),
     "sLicenseServerURL": "string",
     "oRepository": (
