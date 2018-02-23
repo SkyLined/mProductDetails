@@ -1,12 +1,11 @@
-import urllib;
-
 from .cErrorException import cErrorException;
+from .fsGetHTTPResponseData import fsGetHTTPResponseData;
 
 class cGitHubRepository(object):
+  sType = "GitHub";
+  
   class cGitHubServerErrorException(cErrorException):
     pass;
-  
-  sType = "GitHub";
   
   def __init__(oSelf, sUserName, sRepositoryName, sBranch, sType = None):
     assert sType in [None, "GitHub"], \
@@ -20,13 +19,8 @@ class cGitHubRepository(object):
   
   @property
   def sLatestProductDetailsJSONData(oSelf):
-    try:
-      oHTTPRequest = urllib.urlopen(oSelf.sProductDetailsJSONURL);
-    except Exception as oException:
-      raise cGitHubRepository.cGitHubServerErrorException("Connection to %s failed with error %s." % \
-          (sProductDetailsJSONURL, str(oException)));
-    uStatusCode = oHTTPRequest.getcode();
-    if uStatusCode != 200:
-      return cGitHubRepository.cGitHubServerErrorException("Request for %s returned HTTP %03d." % \
-          (oSelf.sProductDetailsJSONURL, uStatusCode));
-    return oHTTPRequest.read();
+    return fsGetHTTPResponseData(
+      sURL = oSelf.sProductDetailsJSONURL,
+      sPostData = None, 
+      cException = cGitHubRepository.cGitHubServerErrorException,
+    );

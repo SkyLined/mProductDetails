@@ -34,17 +34,15 @@ class cProductDetails(object):
       sBasePath = sBasePath,
     );
   
-  def __init__(oSelf, sProductName, oProductVersion, bRequiresLicense, sTrialPeriodDuration, sLicenseServerURL, \
-      sLicenseServerCertificateFilePath, oRepository):
+  def __init__(oSelf, sProductName, oProductVersion, bRequiresLicense, sTrialPeriodDuration, sLicenseServerURL, oRepository):
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
     oSelf.bRequiresLicense = bRequiresLicense;
     oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
-    oSelf.sLicenseServerCertificateFilePath = sLicenseServerCertificateFilePath;
     oSelf.oRepository = oRepository;
     
-    oSelf.oLicenseCheckServer = cLicenseCheckServer(sLicenseServerURL, sLicenseServerCertificateFilePath);
+    oSelf.oLicenseCheckServer = cLicenseCheckServer(sLicenseServerURL);
     oSelf.__oLicenseCollection = None;
     oSelf.__oLicense = None;
     oSelf.__oLatestProductDetailsFromRepository = None;
@@ -158,7 +156,6 @@ goProductDetailsDataStructure = cDataStructure(
     "bRequiresLicense": "boolean",
     "sTrialPeriodDuration": ("string", "-"),
     "sLicenseServerURL": "string",
-    "sLicenseServerCertificateFilePath": "path",
     "oRepository": (
       cDataStructure(
         {

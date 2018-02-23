@@ -1,17 +1,15 @@
-import json, urllib, ssl;
-
 from .cDataStructure import cDataStructure;
 from .cDate import cDate;
 from .cErrorException import cErrorException;
 from .cLicenseCheckResult import cLicenseCheckResult;
+from .fsGetHTTPResponseData import fsGetHTTPResponseData;
 
 class cLicenseCheckServer(object):
   class cServerErrorException(cErrorException):
     pass;
 
-  def __init__(oSelf, sServerURL, sServerCertificateFilePath = None):
+  def __init__(oSelf, sServerURL):
     oSelf.sServerURL = sServerURL;
-    oSelf.sServerCertificateFilePath = sServerCertificateFilePath; # For use with site-pinning.
   
   def foGetLicenseCheckResult(oSelf, xUnused = None, sLicenseBlock = None, sProductName = None, sLicenseVersion = None):
     assert xUnused is None, \
@@ -27,23 +25,11 @@ class cLicenseCheckServer(object):
       "sLicenseVersion": sLicenseVersion,
       "sProductName": sProductName,
     });
-    oSSLContext = ssl.create_default_context(cafile = oSelf.sServerCertificateFilePath);
-    try:
-      oHTTPRequest = urllib.urlopen(oSelf.sServerURL, sPostData, context = oSSLContext);
-    except Exception as oException:
-      raise cLicenseCheckServer.cServerErrorException("The license server could not be contacted (error: %s)" % repr(oException));
-    uStatusCode = oHTTPRequest.getcode();
-    if uStatusCode == 404:
-      raise cLicenseCheckServer.cServerErrorException("The license server url is invalid (HTTP %03d)." % uStatusCode);
-    if uStatusCode > 500:
-      raise cLicenseCheckServer.cServerErrorException("The license server provided an error code %03d." % uStatusCode);
-    if uStatusCode != 200:
-      raise cLicenseCheckServer.cServerErrorException("The license server provided an unexpected response code %03d." % uStatusCode);
-    
-    sLicenseCheckResultJSONData = oHTTPRequest.read();
-    if not sLicenseCheckResultJSONData:
-      raise cLicenseCheckServer.cServerErrorException("The license server response does not contain any data.");
-
+    sLicenseCheckResultJSONData = fsGetHTTPResponseData(
+      sURL = oSelf.sServerURL,
+      sPostData = sPostData, 
+      cException = cLicenseCheckServer.cServerErrorException,
+    );
     oJSONServerResponeStructure = cDataStructure(
       (
         { # Two options: an error...
