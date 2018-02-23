@@ -1,15 +1,15 @@
 import re;
 
-from mProductVersionAndLicense.cProductDetails import cProductDetails;
-from mProductVersionAndLicense.cLicenseCollection import cLicenseCollection;
+from mProductDetails.cProductDetails import cProductDetails;
+from mProductDetails.cLicenseCollection import cLicenseCollection;
 
 def fUsage(sMainScriptName, sFeatureName):
          ################################################################################
   print "Register a new licenses for a specific product for use by the current user on";
   print "this system.";
   print "Usage:";
-  print "  %s %s <options>" % (sMainScriptName, sFeatureName);
-  print "Where <options> is:";
+  print "  %s %s <settings>" % (sMainScriptName, sFeatureName);
+  print "Where <settings> are:";
   print " [--product=]<product folder>      The root folder for the product.";
   print " [--license=]<license file name>   Path to a file containing the license.";
   print "";
@@ -17,42 +17,46 @@ def fUsage(sMainScriptName, sFeatureName):
   print "product and ask the server if they are valid. Those that are valid are stored in";
   print "the registry for use with the product.";
 
-def License_fuMain_Register(sMainScriptName, sFeatureName, asArguments):
-  if len(asArguments) == 0:
+def fuRegister(sMainScriptName, sFeatureName, asArguments, dsArguments):
+  if len(asArguments) + len(dsArguments) == 0:
     fUsage(sMainScriptName, sFeatureName);
     return 1;
+  
   # Parse arguments
   sProductFolderPath = None;
   sLicenseFilePath = None;
-  for sArgument in asArguments:
-    oArgumentMatch = re.match(r"^\-\-([\w\-]+)(?:\=(.*))?$", sArgument);
-    if not oArgumentMatch:
-      if sProductFolderPath is None:
-        sProductFolderPath = sArgument;
-      elif sLicenseFilePath is None:
-        sLicenseFilePath = sArgument;
-      else:
-        print "- Superfluous argument %s!" % sArgument;
-        return 1;
-    else:
-      (sName, sValue) = oArgumentMatch.groups();
-      sName = sName.lower();
-      if sName == "help":
+  for (sName, sValue) in dsArguments.items():
+    sName = sName.lower();
+    if sName == "help":
+      fUsage(sMainScriptName, sFeatureName);
+      return 0;
+    elif sName == "product":
+      if sProductFolderPath is not None:
+        print "- Please provide only one product folder path!";
         fUsage(sMainScriptName, sFeatureName);
-        return 0;
-      elif sName == "product":
-        if sProductFolderPath is not None:
-          print "- Please provide only one product folder path!";
-          return 1;
-        sProductFolderPath = sValue;
-      elif sName == "license":
-        if sLicenseFilePath is not None:
-          print "- Please provide only one input file path!";
-          return 1;
-        sLicenseFilePath = sValue;
-      else:
-        print "- Unrecognized argument %s!" % sArgument;
         return 1;
+      sProductFolderPath = sValue;
+    elif sName == "license":
+      if sLicenseFilePath is not None:
+        print "- Please provide only one input file path!";
+        fUsage(sMainScriptName, sFeatureName);
+        return 1;
+      sLicenseFilePath = sValue;
+    else:
+      print "- Unrecognized argument %s!" % sArgument;
+      fUsage(sMainScriptName, sFeatureName);
+      return 1;
+  
+  for sArgument in asArguments:
+    if sProductFolderPath is None:
+      sProductFolderPath = sArgument;
+    elif sLicenseFilePath is None:
+      sLicenseFilePath = sArgument;
+    else:
+      print "- Superfluous argument %s!" % sArgument;
+      fUsage(sMainScriptName, sFeatureName);
+      return 1;
+  
   # Check arguments
   if sProductFolderPath is None:
     print "- Please provide a --product argument!";

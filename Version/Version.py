@@ -1,27 +1,26 @@
-import os, re, sys;
+import json, os, re, sys, time;
 
-sMainFolderPath = os.path.dirname(os.path.abspath(__file__));
+# This script should be run as if mProductDetails is a module, so we need to
+# alter the search path:
+sMainFolderPath = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."));
 sParentFolderPath = os.path.normpath(os.path.join(sMainFolderPath, ".."));
 sModulesFolderPath = os.path.join(sMainFolderPath, "modules");
 asOriginalSysPath = sys.path[:];
 sys.path = [sMainFolderPath, sParentFolderPath, sModulesFolderPath] + sys.path;
 
-from mProductVersionAndLicense.License_fuMain_Generate import License_fuMain_Generate;
-from mProductVersionAndLicense.License_fuMain_Register import License_fuMain_Register;
-from mProductVersionAndLicense.License_fuMain_Show import License_fuMain_Show;
+from fuShow import fuShow;
+from fuUpdate import fuUpdate;
 
 # Restore the search path
 sys.path = asOriginalSysPath;
 
 dFeature_fuMain_by_sName = {
-  "generate": License_fuMain_Generate,
-  "register": License_fuMain_Register,
-  "show": License_fuMain_Show,
+  "show": fuShow,
+  "update": fuUpdate,
 };
 dFeature_sDescription_by_sName = {
-  "generate": "generate a new license.",
-  "register": "register a license on this system.",
-  "show":     "show licenses registered on this system.",
+  "update": "show the product version.",
+  "update": "update the product version.",
 };
 
 def fUsage(sMainScriptName):
@@ -41,12 +40,21 @@ def fuMain(sMainScriptName, asArguments):
     fUsage(sMainScriptName);
     return 0;
   sFeatureName = asArguments[0].lower();
-  asFeatureArguments = asArguments[1:];
+  asFeatureArguments = [];
+  dsFeatureArguments = {};
+  for sArgument in asArguments[1:]:
+    oArgumentMatch = re.match(r"^\-\-([\w\-]+)(?:\=(.*))?$", sArgument);
+    if oArgumentMatch:
+      (sName, sValue) = oArgumentMatch.groups();
+      dsFeatureArguments[sName.lower()] = sValue;
+    else:
+      asFeatureArguments.append(sArgument);
+
   fuFeatureMain = dFeature_fuMain_by_sName.get(sFeatureName);
   if fuFeatureMain is None:
     print "Unknown feature %s" % sFeatureName;
     return 1;
-  return fuFeatureMain(sMainScriptName, sFeatureName, asFeatureArguments);
+  return fuFeatureMain(sMainScriptName, sFeatureName, asFeatureArguments, dsFeatureArguments);
 
 if __name__ == "__main__":
   os._exit(fuMain(sys.argv[0], sys.argv[1:]));
