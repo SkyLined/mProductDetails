@@ -1,3 +1,5 @@
+import json;
+
 from .cDataStructure import cDataStructure;
 from .cDate import cDate;
 from .cErrorException import cErrorException;
