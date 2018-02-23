@@ -19,7 +19,7 @@ grLicenseBlock = re.compile("".join([
   r")",
   r"'\-+ Authentication ([0-9a-f]+) \-+'", srCRLF,
 ]));
-grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?)\. +\|");
+grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?) +\|");
 
 class cLicense(object):
   class cSyntaxErrorException(cErrorException):
