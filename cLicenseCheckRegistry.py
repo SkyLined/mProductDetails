@@ -1,6 +1,4 @@
-from .cDate import cDate;
-# The rest of the local imports are at the end to prevent import loops.
-from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue, cRegistryValue;
+# The imports are at the end to prevent import loops.
 
 gsMainKeyPath = "Software\SkyLined";
 
@@ -137,6 +135,8 @@ class cLicenseCheckRegistry(object):
       and fbSetDateValue(oSelf.__oRegistryHiveKey, "oNextCheckWithServerDate", oLicenseCheckResult.oNextCheckWithServerDate)
     );
 
+from .cDate import cDate;
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
 from .cLicenseCollection import cLicenseCollection;
+from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue, cRegistryValue;

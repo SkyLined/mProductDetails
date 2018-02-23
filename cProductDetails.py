@@ -1,9 +1,6 @@
 import os;
 
-from .cDataStructure import cDataStructure;
-from .cDate import cDate;
-from .cGitHubRepository import cGitHubRepository;
-# The rest of the local imports are at the end to prevent import loops.
+# The imports are at the end to prevent import loops.
 
 gsJSONFileName = "dxProductDetails.json";
 
@@ -184,10 +181,8 @@ class cProductDetails(object):
   def bVersionIsPreRelease(oSelf):
     oSelf.oLatestProductVersion and oSelf.oProductVersion > oSelf.oLatestProductVersion;
 
-from .cLicenseCheckRegistry import cLicenseCheckRegistry;
-from .cLicenseCheckServer import cLicenseCheckServer;
-from .cLicenseCollection import cLicenseCollection;
-
+from .cDataStructure import cDataStructure;
+from .cGitHubRepository import cGitHubRepository;
 goProductDetailsDataStructure = cDataStructure(
   {
     "sProductName": "string", 
@@ -212,3 +207,9 @@ goProductDetailsDataStructure = cDataStructure(
   },
   cProductDetails,
 );
+
+from .cDate import cDate;
+from .cLicenseCheckRegistry import cLicenseCheckRegistry;
+from .cLicenseCheckServer import cLicenseCheckServer;
+from .cLicenseCollection import cLicenseCollection;
+

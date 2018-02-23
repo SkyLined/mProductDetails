@@ -1,6 +1,4 @@
-# Local imports are at the end to prevent import loops.
-import mFileSystem;
-
+# The imports are at the end to prevent import loops.
 class cLicenseCollection(object):
   # A license collection is a list of licenses which offers some convenience functions to import and export them, check
   # them with the Windows registry and/or a server, get a valid&active license for a product, or a list of errors that
@@ -73,3 +71,4 @@ class cLicenseCollection(object):
 
 from .cLicense import cLicense;
 from .cLicenseCheckServer import cLicenseCheckServer;
+import mFileSystem;

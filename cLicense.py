@@ -1,9 +1,7 @@
 import hashlib, hmac, re;
 
-from .cDate import cDate;
 from .cErrorException import cErrorException;
-# The rest of the local imports are at the end to prevent import loops.
-from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;
+# The rest of the imports are at the end to prevent import loops.
 
 gsLicenseBlockHeader = "This is a license key covering software created by SkyLined";
 
@@ -191,4 +189,6 @@ class cLicense(object):
         "You need to call fCheckWithRegistryOrServer or fCheckWithServer successfully before reading bInstancesExceeded";
     return oSelf.__oLicenseCheckResult.bLicenseInstancesExceeded;
 
+from .cDate import cDate;
 from .cLicenseCheckRegistry import cLicenseCheckRegistry;
+from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;
