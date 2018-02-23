@@ -48,12 +48,12 @@ def fuUpdate(sMainScriptName, sFeatureName, asArguments, dsArguments):
     return 1;
   
   # Read the product details from the product folder:
-  oProductDetails = cProductDetails.foReadFromFolderPath(sProductFolderPath);
+  oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
   if not oProductDetails:
     print "- Product details could not be read from %s!" % sProductFolderPath;
     return 2;
   oProductDetails.oProductVersion = cVersion.foNew();
-  if not oProductDetails.fbWriteToFolderPath(sProductFolderPath):
+  if not oProductDetails.fbWriteForFolderPath(sProductFolderPath):
     print "- Product details could not be written to %s!" % sProductFolderPath;
     return 2;
   print "+ Version updated to %s." % oProductDetails.oProductVersion;

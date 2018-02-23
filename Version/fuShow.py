@@ -48,7 +48,7 @@ def fuShow(sMainScriptName, sFeatureName, asArguments, dsArguments):
     return 1;
   
   # Read the product details from the product folder:
-  oProductDetails = cProductDetails.foReadFromFolderPath(sProductFolderPath);
+  oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
   if not oProductDetails:
     print "- Product details could not be read from %s!" % sProductFolderPath;
     return 2;
