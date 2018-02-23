@@ -15,7 +15,7 @@ class cLicenseConfiguration(object):
       [
         cDataStructure(
           {
-            "asProductNames": ["string"],
+            "sProductName": "string",
             "sLicenseVersion": "string",
             "sLicenseURL": "string",
             "sHashingAlgorithmName": "string",
@@ -34,7 +34,7 @@ class cLicenseConfiguration(object):
     );
 
   def __init__(oSelf,
-    asProductNames,
+    sProductName,
     sLicenseVersion,
     sLicenseURL,
     sHashingAlgorithmName,
@@ -42,7 +42,7 @@ class cLicenseConfiguration(object):
     sSecretKey,
     dsUsageTypeDescription_by_sKeyword,
   ):
-    oSelf.asProductNames = asProductNames;
+    oSelf.sProductName = sProductName;
     oSelf.sLicenseVersion = sLicenseVersion;
     oSelf.sLicenseURL = sLicenseURL;
     oSelf.sHashingAlgorithmName = sHashingAlgorithmName;
