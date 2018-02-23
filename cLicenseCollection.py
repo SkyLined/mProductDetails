@@ -38,24 +38,29 @@ class cLicenseCollection(object):
       ):
         return oLicense;
       
-  def fasGetErrors(oSelf, sProductName = None):
+  def fasGetErrors(oSelf, sProductName):
     # Get a description of the problems for all licenses for this product. Returns an empty array if at least one
     # license is active, valid, and non-revoked and has not exceeded its allowed instances:
     if len(oSelf.aoLicenses) == 0:
-      return ["You have no license."];
+      return ["You have no license for %s." % sProductName];
     asErrors = [];
     for oLicense in oSelf.aoLicenses:
-      if sProductName in [None, oLicense.sProductName]:
+      if sProductName in oLicense.sProductName:
         if oLicense.bIsExpired:
-          asErrors.append("You have a license with id %s that expired on %s." % (oLicense.sLicenseId, oLicense.oEndDate));
+          asErrors.append("Your license for %s with id %s expired on %s." % \
+              (sProductName, oLicense.sLicenseId, oLicense.oEndDate));
         elif not oLicense.bIsActive:
-          asErrors.append("You have a license with id %s that activates on %s." % (oLicense.sLicenseId, oLicense.oStartDate));
+          asErrors.append("Your license for %s with id %s activates on %s." % \
+              (sProductName, oLicense.sLicenseId, oLicense.oStartDate));
         elif oLicense.bIsValid:
-          asErrors.append("You have a license with id %s that is not valid." % oLicense.sLicenseId);
+          asErrors.append("Your license for %s with id %s is not valid." % \
+              (sProductName, oLicense.sLicenseId));
         elif oLicense.bIsRevoked:
-          asErrors.append("You have a license with id %s that is revoked." % oLicense.sLicenseId);
+          asErrors.append("Your license for %s with id %s has been revoked." % \
+              (sProductName, oLicense.sLicenseId));
         elif oLicense.bLicenseInstancesExceeded:
-          asErrors.append("You have a license with id %s that has exceeded its instances." % oLicense.sLicenseId);
+          asErrors.append("Your license for %s with id %s has exceeded its maximum number of instances." % \
+              (sProductName, oLicense.sLicenseId));
         else:
           # There is a active, valid, non-revoked licenses for this product that has not exceeded its allowed instances:
           return []; # return no errors for this product.
