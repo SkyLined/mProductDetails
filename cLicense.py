@@ -1,4 +1,5 @@
 import hashlib, hmac, re;
+import mFileSystem;
 
 from .cErrorException import cErrorException;
 # The rest of the imports are at the end to prevent import loops.
@@ -20,10 +21,25 @@ grLicenseBlock = re.compile("".join([
   r"'\-+ Authentication ([0-9a-f]+) \-+'", srCRLF,
 ]));
 grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?) +\|");
+import __main__;
+gsDefaultLicenseFilePath = mFileSystem.fsPath(__main__.__file__, "..", "#License.asc");
 
 class cLicense(object):
   class cSyntaxErrorException(cErrorException):
     pass;
+  
+  @staticmethod
+  def faoReadLicensesForDefaultFilePath(sProductName = None):
+    if not mFileSystem.fbIsFile(gsDefaultLicenseFilePath):
+      return [];
+    return cLicense.faoReadLicensesFromFilePath(gsDefaultLicenseFilePath, sProductName = sProductName);
+  
+  @staticmethod
+  def faoReadLicensesFromFilePath(sLicenseFilePath, sProductName = None):
+    return cLicense.faoForLicenseBlocks(
+      sLicenseBlocks = mFileSystem.fsReadDataFromFile(sLicenseFilePath),
+      sProductName = sProductName,
+    );
   
   @staticmethod
   def faoForLicenseBlocks(sLicenseBlocks, sProductName = None):

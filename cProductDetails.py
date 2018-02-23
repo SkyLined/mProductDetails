@@ -97,7 +97,10 @@ class cProductDetails(object):
   @property
   def oLicenseCollection(oSelf):
     if oSelf.__oLicenseCollection is None:
-      oSelf.__oLicenseCollection = cLicenseCheckRegistry.foLicenseCollectionFromRegistry(sProductName = oSelf.sProductName);
+      oSelf.__oLicenseCollection = cLicenseCollection.foForDefaultLicenseFile();
+      oSelf.__oLicenseCollection.faoAddLicenses(
+        aoLicenses = cLicenseCheckRegistry.faoReadLicensesFromRegistry(sProductName = oSelf.sProductName),
+      );
     return oSelf.__oLicenseCollection;
   
   def __fCheckLicense(oSelf):
@@ -211,7 +214,7 @@ goProductDetailsDataStructure = cDataStructure(
 );
 
 from .cDate import cDate;
+from .cLicense import cLicense;
 from .cLicenseCheckRegistry import cLicenseCheckRegistry;
 from .cLicenseCheckServer import cLicenseCheckServer;
 from .cLicenseCollection import cLicenseCollection;
-

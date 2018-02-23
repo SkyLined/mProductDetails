@@ -4,17 +4,25 @@ class cLicenseCollection(object):
   # them with the Windows registry and/or a server, get a valid&active license for a product, or a list of errors that
   # explain why there is no valid&active license for a product.
   @staticmethod
-  def foReadFromFile(sLicenseFilePath, sProductName = None):
-    sLicenseBlocks = mFileSystem.fsReadDataFromFile(sLicenseFilePath);
-    return cLicenseCollection.foFromLicenseBlocks(sLicenseBlocks, sProductName = sProductName);
-    
-  @staticmethod
-  def foFromLicenseBlocks(sLicenseBlocks, sProductName = None):
-    aoLicenses = cLicense.faoForLicenseBlocks(sLicenseBlocks, sProductName = sProductName)
-    return aoLicenses and cLicenseCollection(aoLicenses) or None;
-  
-  def __init__(oSelf, aoLicenses):
+  def foForDefaultLicenseFile():
+    return cLicenseCollection(
+      aoLicenses = cLicense.faoReadLicensesForDefaultFilePath(),
+    );
+
+  def __init__(oSelf, aoLicenses = []):
     oSelf.aoLicenses = aoLicenses;
+
+  def faoAddLicenses(oSelf, aoLicenses):
+    # Add only licenses that are different from those in the collection:
+    aoAddedLicenses = [];
+    for oLicense in aoLicenses:
+      for oExistingLicense in oSelf.aoLicenses:
+        if oLicense.sLicenseBlock == oExistingLicense.sLicenseBlock:
+          break;
+      else:
+        aoAddedLicenses.append(oNewLicense);
+        oSelf.aoLicenses.append(oNewLicense);
+    return aoAddedLicenses;
   
   def fCheckWithRegistryOrServer(oSelf, oLicenseCheckServer):
     for oLicense in oSelf.aoLicenses:

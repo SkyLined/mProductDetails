@@ -37,7 +37,7 @@ def fbSetDateValue(oRegistryHiveKey, sValueName, oValue):
 
 class cLicenseCheckRegistry(object):
   @staticmethod
-  def foLicenseCollectionFromRegistry(sProductName = None):
+  def faoReadLicensesFromRegistry(sProductName = None):
     oProductsRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
       sKeyName = gsMainKeyPath,
@@ -67,7 +67,7 @@ class cLicenseCheckRegistry(object):
             and aoLicenses[0].sLicenseId == sLicensId
           ):
             aoLoadedLicenses += aoLicenses;
-    return cLicenseCollection(aoLoadedLicenses);
+    return aoLoadedLicenses;
   
   @staticmethod
   def foGetFirstRunDate(sProductName):
@@ -138,5 +138,4 @@ class cLicenseCheckRegistry(object):
 from .cDate import cDate;
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
-from .cLicenseCollection import cLicenseCollection;
 from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue, cRegistryValue;
