@@ -141,7 +141,7 @@ class cProductDetails(object):
         # Warn if license will expire in one month.
         if cDate.foNow().foEndDateForDuration("1m") > oProductDetails.oLicense.oEndDate:
           asLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
-              (oProductDetails.sProductName, oProductDetails.oLicense.sId, oProductDetails.oLicense.oEndDate));
+              (oProductDetails.sProductName, oProductDetails.oLicense.sLicenseId, oProductDetails.oLicense.oEndDate));
       elif oProductDetails.bInTrialPeriod:
         # Warn if in trial period
         asLicenseWarnings.append("Your trial period for %s will expire on %s." % \
