@@ -141,7 +141,7 @@ class cProductDetails(object):
               (oProductDetails.sProductName, oProductDetails.oLicense.sLicenseId, oProductDetails.oLicense.oEndDate));
       elif oProductDetails.bInTrialPeriod:
         # Warn if in trial period
-        asLicenseWarnings.append("Your trial period for %s will expire on %s." % \
+        asLicenseWarnings.append("Your trial period for %s will end on %s." % \
             (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate));
     return asLicenseWarnings;
   
@@ -163,6 +163,8 @@ class cProductDetails(object):
   @property
   def oLatestProductDetailsFromRepository(oSelf):
     if oSelf.__oLatestProductDetailsFromRepository is None:
+      # In case checking throws an error, set the value to false so we don't try again:
+      oSelf.__oLatestProductDetailsFromRepository = False;
       oSelf.__oLatestProductDetailsFromRepository = cProductDetails.foFromJSONData(
         sProductDetailsJSONData = oSelf.oRepository.sLatestProductDetailsJSONData,
         sDataNameInError = "latest product details JSON file from repository",
