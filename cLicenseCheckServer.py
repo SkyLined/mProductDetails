@@ -28,6 +28,7 @@ class cLicenseCheckServer(object):
     sLicenseCheckResultJSONData = fsGetHTTPResponseData(
       sURL = oSelf.sServerURL,
       sPostData = sPostData, 
+      sURLNameInException = "The license check server",
       cException = cLicenseCheckServer.cServerErrorException,
     );
     oJSONServerResponeStructure = cDataStructure(

@@ -1,7 +1,7 @@
 import ssl, urllib, urlparse;
 from .dsCertificateFilePath_by_sHostname import dsCertificateFilePath_by_sHostname;
 
-def fsGetHTTPResponseData(sURL, sPostData, cException):
+def fsGetHTTPResponseData(sURL, sPostData, sURLNameInException, cException):
   oURL = urlparse.urlparse(sURL);
   if oURL.scheme == "https":
     sCertificateFilePath = dsCertificateFilePath_by_sHostname.get(oURL.hostname);
@@ -14,15 +14,15 @@ def fsGetHTTPResponseData(sURL, sPostData, cException):
   try:
     oHTTPRequest = urllib.urlopen(sURL, sPostData, context = oSSLContext);
   except Exception as oException:
-    raise cException("The server could not be contacted (error: %s)" % repr(oException));
+    raise cException("%s could not be contacted (error: %s)" % (sURLNameInException, repr(oException)));
   uStatusCode = oHTTPRequest.getcode();
   sData = oHTTPRequest.read();
   if uStatusCode == 404:
-    raise cException("The server url was not found (HTTP 404).");
+    raise cException("%s was not found (HTTP 404)." % sURLNameInException);
   if uStatusCode > 500:
-    raise cException("The server returned error code %03d." % uStatusCode);
+    raise cException("%s returned an internal error code %03d." % (sURLNameInException, uStatusCode));
   if uStatusCode != 200:
-    raise cException("The server provided an unexpected response code %03d." % uStatusCode);
+    raise cException("%s returned an unexpected response code %03d." % (sURLNameInException, uStatusCode));
   if not sData:
-    raise cException("The server response does not contain any data.");
+    raise cException("%s did not return any data." % sURLNameInException);
   return sData;

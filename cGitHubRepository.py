@@ -22,5 +22,6 @@ class cGitHubRepository(object):
     return fsGetHTTPResponseData(
       sURL = oSelf.sProductDetailsJSONURL,
       sPostData = None, 
+      sURLNameInException = "The GitHub repository",
       cException = cGitHubRepository.cGitHubServerErrorException,
     );
