@@ -28,6 +28,10 @@ def fUsage(sMainScriptName, sFeatureName):
   print "";
   print "This feature will generate a new license for given settings, check with the";
   print "server that the license is considered valid and write it to a file.";
+  print "Note that you can provide multiple product folders to generate licenses for";
+  print "multiple products with the same settings by using the --products setting:";
+  print "  --products=<product folder>|<product folder>|...";
+
 
 def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
   if len(asArguments) + len(dsArguments) == 0:
@@ -35,7 +39,7 @@ def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
     return 1;
   
   # Parse arguments
-  sProductFolderPath = None;
+  asProductFolderPaths = [];
   sLicenseConfigurationFilePath = None;
   sLicenseVersion = None;
   sLicenseeName = None;
@@ -51,7 +55,9 @@ def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
       fUsage(sMainScriptName, sFeatureName);
       return 0;
     elif sName == "product":
-      sProductFolderPath = sValue;
+      asProductFolderPaths = [sValue];
+    elif sName == "products":
+      asProductFolderPaths = sValue.split("|");
     elif sName == "config":
       sLicenseConfigurationFilePath = sValue;
     elif sName == "version":
@@ -76,8 +82,8 @@ def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
       return 1;
   
   for sArgument in asArguments:
-    if sProductFolderPath is None:
-      sProductFolderPath = sArgument;
+    if len(asProductFolderPaths) == 0:
+      asProductFolderPaths.append(sArgument);
     elif sLicenseConfigurationFilePath is None:
       sLicenseConfigurationFilePath = sArgument;
     elif sLicenseeName is None:
@@ -90,106 +96,114 @@ def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
       return 1;
   
   # Check arguments
-  if sProductFolderPath is None:
-    print "- Please provide a --product argument!";
+  if len(asProductFolderPaths) == 0:
+    print "- Please provide at least one --product argument!";
     fUsage(sMainScriptName, sFeatureName);
     return 1;
   if sLicenseConfigurationFilePath is None:
-    print "- Please provide an --config argument!";
+    print "- Please provide a --config argument!";
     fUsage(sMainScriptName, sFeatureName);
     return 1;
   if sLicenseeName is None:
-    print "- Please provide an --licensee argument!";
+    print "- Please provide a --licensee argument!";
     fUsage(sMainScriptName, sFeatureName);
     return 1;
   if sUsageTypeKeyword is None:
-    print "- Please provide an --use argument!";
+    print "- Please provide a --use argument!";
     fUsage(sMainScriptName, sFeatureName);
     return 1;
   if oEndDate is not None and sDuration is not None:
-    print "- Please provide either --end or --duration, not both!";
+    print "- Please provide either an --end or a --duration argument, not both!";
     fUsage(sMainScriptName, sFeatureName);
     return 1;
   if sDuration is not None:
     for sDurationComponent in sDuration.split("+"):
       oDurationMatch = re.match(r"(\d+)([ymd])", sDurationComponent, re.I);
       if oDurationMatch is None:
-        print "- Please provide a valid value (<number>[ymd]) for duration!";
+        print "- Please provide a valid value for the --duration argument!";
         fUsage(sMainScriptName, sFeatureName);
         return 1;
-  # Read the product details from the product folder:
-  oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
-  if not oProductDetails:
-    print "- Product details could not be read from %s!" % sProductFolderPath;
-    return 2;
   # Read the license configuration from the file:
   aoOrderedLicenseConfigurations = cLicenseConfiguration.faoReadFromJSONFile(sLicenseConfigurationFilePath);
   if not  aoOrderedLicenseConfigurations:
     print "- License configurations could not be read from %s" % sLicenseConfigurationFilePath;
     return 2;
-  print "+ Read %d license configurations from %s." % (len(aoOrderedLicenseConfigurations), sLicenseConfigurationFilePath);
-
-  # Filter license configurations for product name
-  aoSelectedOrderedLicenseConfigurations = [
-    oLicenseConfiguration for oLicenseConfiguration in aoOrderedLicenseConfigurations
-    if oProductDetails.sProductName in oLicenseConfiguration.asProductNames
-  ];
-  if not aoSelectedOrderedLicenseConfigurations:
-    print "- No license configurations are available for product %s" % oProductDetails.sProductName;
-    return 1;
-  if len(aoOrderedLicenseConfigurations) != len(aoSelectedOrderedLicenseConfigurations):
-    print "+ Selected %d license configurations for product %s." % \
-        (len(aoSelectedOrderedLicenseConfigurations), oProductDetails.sProductName);
-  if sLicenseVersion:
-    # Filter for version
-    aoSelectedOrderedLicenseConfigurations = [
-      oLicenseConfiguration for oLicenseConfiguration in aoSelectedOrderedLicenseConfigurations
-      if oLicenseConfiguration.sVersion == sLicenseVersion
-    ];
-    if len(aoSelectedOrderedLicenseConfigurations) == 0:
-      print "- No license configurations are available for product %s and version %s" % \
-          (oProductDetails.sProductName, sLicenseVersion);
-      return 1;
-    assert len(aoSelectedOrderedLicenseConfigurations) == 1, \
-        "There are multiple license configurations available for products %s and version %s" % \
-          (oProductDetails.sProductName, sLicenseVersion);
-  # Select the latest
-  oLicenseConfiguration = aoSelectedOrderedLicenseConfigurations[-1];
-  if len(aoSelectedOrderedLicenseConfigurations) > 1:
-    print "+ Selected license configurations version %s." % (oLicenseConfiguration.sLicenseVersion);
-  # Apply start/end dates
-  if oEndDate is not None:
-    pass;
-  elif oStartDate == cDate.foNow():
-    oEndDate = oStartDate.foEndDateForDuration(sDuration or "1y+7d");
-  else:
-    oEndDate = oStartDate.foEndDateForDuration(sDuration or "1y");
-  # Create a new license.
-  oLicense = oLicenseConfiguration.foCreateLicense(
-    oProductDetails.sProductName, sLicenseeName, sUsageTypeKeyword, uLicensedInstances, oStartDate, oEndDate,
-  );
-  print oLicense.sLicenseBlock;
-  # Check to make sure the server considers the license valid, but do not cache the result in the registry as this
-  # may not be our own certificate:
-  try:
-    oLicense.fCheckWithServer(oProductDetails.oLicenseCheckServer, bWriteToRegistry = False);
-  except cLicenseCheckServer.cServerErrorException, oServerErrorException:
-    print "- The server reported an error: %s" % oServerErrorException.sMessage;
-    return 2;
-  if not oLicense.bIsValid:
-    print "- The server reported the new generated license as invalid!";
-    return 2;
-  if oLicense.bIsRevoked:
-    print "- The server reported the new generated license as revoked!";
-    return 2;
-  if oLicense.bLicenseInstancesExceeded:
-    print "- The server reported the new generated license as having exceeded the licensed number of instances!";
-    return 2;
+#  print "+ Read %d license configurations from %s." % (len(aoOrderedLicenseConfigurations), sLicenseConfigurationFilePath);
+  
   if sOutputFilePath:
-    if os.path.isfile(sOutputFilePath):
-      open(sOutputFilePath, "ab").write(oLicense.sLicenseBlock);
-      print "+ The new license has been appended to %s." % sOutputFilePath;
+    sLicenseBlocks = "";
+  for sProductFolderPath in asProductFolderPaths:
+    # Read the product details from the product folder:
+    oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
+    if not oProductDetails:
+      print "- Product details could not be read from %s!" % sProductFolderPath;
+      return 2;
+
+    # Filter license configurations for product name
+    aoSelectedOrderedLicenseConfigurations = [
+      oLicenseConfiguration for oLicenseConfiguration in aoOrderedLicenseConfigurations
+      if oProductDetails.sProductName == oLicenseConfiguration.sProductName
+    ];
+    if not aoSelectedOrderedLicenseConfigurations:
+      print "- No license configurations are available for product %s" % oProductDetails.sProductName;
+      return 1;
+#    if len(aoOrderedLicenseConfigurations) != len(aoSelectedOrderedLicenseConfigurations):
+#      print "+ Selected %d license configurations for product %s." % \
+#          (len(aoSelectedOrderedLicenseConfigurations), oProductDetails.sProductName);
+    if sLicenseVersion:
+      # Filter for version
+      aoSelectedOrderedLicenseConfigurations = [
+        oLicenseConfiguration for oLicenseConfiguration in aoSelectedOrderedLicenseConfigurations
+        if oLicenseConfiguration.sVersion == sLicenseVersion
+      ];
+      if len(aoSelectedOrderedLicenseConfigurations) == 0:
+        print "- No license configurations are available for product %s and version %s" % \
+            (oProductDetails.sProductName, sLicenseVersion);
+        return 1;
+      assert len(aoSelectedOrderedLicenseConfigurations) == 1, \
+          "There are multiple license configurations available for products %s and version %s" % \
+            (oProductDetails.sProductName, sLicenseVersion);
+    # Select the latest
+    oLicenseConfiguration = aoSelectedOrderedLicenseConfigurations[-1];
+#    if len(aoSelectedOrderedLicenseConfigurations) > 1:
+#      print "+ Selected license configurations version %s." % (oLicenseConfiguration.sLicenseVersion);
+    # Apply start/end dates
+    if oEndDate is not None:
+      pass;
+    elif oStartDate == cDate.foNow():
+      oEndDate = oStartDate.foEndDateForDuration(sDuration or "1y+7d");
     else:
-      open(sOutputFilePath, "wb").write(oLicense.sLicenseBlock);
-      print "+ The new license has been written to %s." % sOutputFilePath;
+      oEndDate = oStartDate.foEndDateForDuration(sDuration or "1y");
+    # Create a new license.
+    oLicense = oLicenseConfiguration.foCreateLicense(
+      oProductDetails.sProductName, sLicenseeName, sUsageTypeKeyword, uLicensedInstances, oStartDate, oEndDate,
+    );
+    print oLicense.sLicenseBlock;
+    # Check to make sure the server considers the license valid, but do not cache the result in the registry as this
+    # may not be our own certificate:
+    try:
+      oLicense.fCheckWithServer(oProductDetails.oLicenseCheckServer, bWriteToRegistry = False);
+    except cLicenseCheckServer.cServerErrorException, oServerErrorException:
+      print "- The server reported an error: %s" % oServerErrorException.sMessage;
+      return 2;
+    if not oLicense.bIsValid:
+      print "- The server reported the new generated license as invalid!";
+      return 2;
+    if oLicense.bIsRevoked:
+      print "- The server reported the new generated license as revoked!";
+      return 2;
+    if oLicense.bLicenseInstancesExceeded:
+      print "- The server reported the new generated license as having exceeded the licensed number of instances!";
+      return 2;
+    if sOutputFilePath:
+      sLicenseBlocks += oLicense.sLicenseBlock;
+  
+  if sOutputFilePath:
+    oOutputFile = open(sOutputFilePath, "wb");
+    try:
+      oOutputFile.write(sLicenseBlocks);
+    finally:
+      oOutputFile.close();
+    print "+ The license%s been written to %s." % (len(asProductFolderPaths) == 1 and " has" or "s have", sOutputFilePath);
+  
   return 0;
