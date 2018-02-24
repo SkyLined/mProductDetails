@@ -44,7 +44,7 @@ def fuShow(sMainScriptName, sFeatureName, asArguments, dsArguments):
         return 1;
       sLicenseFilePath = sValue;
     else:
-      print "- Unrecognized argument %s!" % sArgument;
+      print "- Unknown argument --%s!" % sName;
       fUsage(sMainScriptName, sFeatureName);
       return 1;
   

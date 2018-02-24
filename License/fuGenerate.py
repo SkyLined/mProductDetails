@@ -77,7 +77,7 @@ def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
     elif sName == "output":
       sOutputFilePath = sValue;
     else:
-      print "- Unrecognized argument %s!" % sArgument;
+      print "- Unknown argument --%s!" % sName;
       fUsage(sMainScriptName, sFeatureName);
       return 1;
   
