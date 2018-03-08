@@ -22,20 +22,20 @@ grLicenseBlock = re.compile("".join([
 ]));
 grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?) +\|");
 import __main__;
-gsDefaultLicenseFilePath = mFileSystem.fsPath(__main__.__file__, "..", "#License.asc");
+gsDefaultLicenseFileName = "#License.asc";
 
 class cLicense(object):
   class cSyntaxErrorException(cErrorException):
     pass;
   
   @staticmethod
-  def faoReadLicensesForDefaultFilePath(sProductName = None):
-    if not mFileSystem.fbIsFile(gsDefaultLicenseFilePath):
-      return [];
-    return cLicense.faoReadLicensesFromFilePath(gsDefaultLicenseFilePath, sProductName = sProductName);
+  def faoReadLicensesFromFolderPath(sFolderPath):
+    return cLicense.faoReadLicensesFromFilePath(mFileSystem.fsPath(sFolderPath, gsDefaultLicenseFileName));
   
   @staticmethod
   def faoReadLicensesFromFilePath(sLicenseFilePath, sProductName = None):
+    if not mFileSystem.fbIsFile(sLicenseFilePath):
+      return [];
     return cLicense.faoForLicenseBlocks(
       sLicenseBlocks = mFileSystem.fsReadDataFromFile(sLicenseFilePath),
       sProductName = sProductName,

@@ -70,4 +70,3 @@ class cLicenseConfiguration(object):
     return oLicense;
 
 from .cLicense import cLicense;
-from .cLicenseCollection import cLicenseCollection;

@@ -3,21 +3,15 @@ class cLicenseCollection(object):
   # A license collection is a list of licenses which offers some convenience functions to import and export them, check
   # them with the Windows registry and/or a server, get a valid&active license for a product, or a list of errors that
   # explain why there is no valid&active license for a product.
-  @staticmethod
-  def foForDefaultLicenseFile():
-    return cLicenseCollection(
-      aoLicenses = cLicense.faoReadLicensesForDefaultFilePath(),
-    );
-
   def __init__(oSelf, aoLicenses = []):
     oSelf.aoLicenses = aoLicenses;
 
   def faoAddLicenses(oSelf, aoLicenses):
     # Add only licenses that are different from those in the collection:
     aoAddedLicenses = [];
-    for oLicense in aoLicenses:
+    for oNewLicense in aoLicenses:
       for oExistingLicense in oSelf.aoLicenses:
-        if oLicense.sLicenseBlock == oExistingLicense.sLicenseBlock:
+        if oNewLicense.sLicenseBlock == oExistingLicense.sLicenseBlock:
           break;
       else:
         aoAddedLicenses.append(oNewLicense);
@@ -78,5 +72,10 @@ class cLicenseCollection(object):
     return "\r\n".join([oLicense.sLicenseBlock for oLicense in oSelf.aoLicenses]);
 
 from .cLicense import cLicense;
+from .cLicenseCheckRegistry import cLicenseCheckRegistry;
 from .cLicenseCheckServer import cLicenseCheckServer;
 import mFileSystem;
+
+# Create a license colllection with all license stored in the registry
+oLicenseCollection = cLicenseCollection();
+oLicenseCollection.faoAddLicenses(cLicenseCheckRegistry.faoReadLicensesFromRegistry());

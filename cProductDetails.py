@@ -7,10 +7,10 @@ gsJSONFileName = "dxProductDetails.json";
 # goProductDetailsDataStructure is defined at the end of the file because it must refer to cProductDetails
 
 class cProductDetails(object):
-  doProductDetails_by_sName = {}; # Stores information on all loaded products.
+  __doLoadedProductDetails_by_sName = {}; # Stores information on all loaded products.
   @staticmethod
   def foGetForProductName(sProductName):
-    oProductDetails = cProductDetails.doProductDetails_by_sName.get(sProductName);
+    oProductDetails = cProductDetails.__doLoadedProductDetails_by_sName.get(sProductName);
     assert oProductDetails, \
         "No cProductDetails instance has been created for %s" % sProductName;
     return oProductDetails;
@@ -25,9 +25,6 @@ class cProductDetails(object):
   @staticmethod
   def foReadForFolderPath(sProductFolderPath):
     sJSONFilePath = os.path.join(sProductFolderPath, gsJSONFileName);
-    return cProductDetails.foReadForJSONFilePath(sJSONFilePath);
-  @staticmethod
-  def foReadForJSONFilePath(sJSONFilePath):
     oJSONFile = open(sJSONFilePath, "rb");
     try:
       sProductDetailsJSONData = oJSONFile.read();
@@ -36,13 +33,15 @@ class cProductDetails(object):
     oProductDetails = cProductDetails.foFromJSONData(
       sProductDetailsJSONData = sProductDetailsJSONData,
       sDataNameInError = "product details JSON file %s" % sJSONFilePath,
-      sBasePath = os.path.dirname(sJSONFilePath),
+      sBasePath = sProductFolderPath,
     );
+    oProductDetails.sInstallationFolderPath = sProductFolderPath;
+    cProductDetails.__doLoadedProductDetails_by_sName[oProductDetails.sProductName] = oProductDetails;
     return oProductDetails;
 
   @staticmethod
   def faoGetAllLoadedProductDetails():
-    return cProductDetails.doProductDetails_by_sName.values();
+    return cProductDetails.__doLoadedProductDetails_by_sName.values();
   
   @staticmethod
   def foFromJSONData(sProductDetailsJSONData, sDataNameInError, sBasePath = None):
@@ -60,9 +59,8 @@ class cProductDetails(object):
     oRepository,
     asDependentOnProductNames,
   ):
-    assert sProductName not in oSelf.doProductDetails_by_sName, \
+    assert sProductName not in oSelf.__doLoadedProductDetails_by_sName, \
         "Product %s should not be created twice" % sProductName;
-    oSelf.doProductDetails_by_sName[sProductName] = oSelf;
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
     oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
@@ -70,22 +68,22 @@ class cProductDetails(object):
     oSelf.oRepository = oRepository;
     oSelf.asDependentOnProductNames = asDependentOnProductNames;
     
+    oSelf.oLicenseCollection = oLicenseCollection;
     oSelf.oLicenseCheckServer = cLicenseCheckServer(sLicenseServerURL);
-    oSelf.__oLicenseCollection = None;
+    oSelf.__sInstallationFolderPath = None;
     oSelf.__oLicense = None;
     oSelf.__oLatestProductDetailsFromRepository = None;
     oSelf.__bCheckedWithServer = False;
   
-  def fbWriteForFolderPath(oSelf, sFolderPath):
-    return oSelf.fbWriteToJSONFilePath(os.path.join(sFolderPath, gsJSONFileName));
-  def fbWriteToJSONFilePath(oSelf, sFilePath):
+  def fbWriteToInstallationFolderPath(oSelf):
     sProductDetailsJSONData = goProductDetailsDataStructure.fsStringify(
       oData = oSelf,
       sDataNameInError = "Product details",
-      sBasePath = os.path.dirname(sFilePath),
+      sBasePath = oSelf.sInstallationFolderPath,
     );
+    sJSONFilePath = os.path.join(oSelf.sInstallationFolderPath, gsJSONFileName);
     try:
-      oFile = open(sFilePath, "wb");
+      oFile = open(sJSONFilePath, "wb");
     except:
       return False;
     try:
@@ -95,13 +93,15 @@ class cProductDetails(object):
     return True;
   
   @property
-  def oLicenseCollection(oSelf):
-    if oSelf.__oLicenseCollection is None:
-      oSelf.__oLicenseCollection = cLicenseCollection.foForDefaultLicenseFile();
-      oSelf.__oLicenseCollection.faoAddLicenses(
-        aoLicenses = cLicenseCheckRegistry.faoReadLicensesFromRegistry(sProductName = oSelf.sProductName),
-      );
-    return oSelf.__oLicenseCollection;
+  def sInstallationFolderPath(oSelf):
+    return oSelf.__sInstallationFolderPath;
+  
+  @sInstallationFolderPath.setter
+  def sInstallationFolderPath(oSelf, sInstallationFolderPath):
+    oSelf.__sInstallationFolderPath = sInstallationFolderPath;
+    oSelf.oLicenseCollection.faoAddLicenses(
+      cLicense.faoReadLicensesFromFolderPath(sInstallationFolderPath),
+    );
   
   def __fCheckLicense(oSelf):
     if not oSelf.__bCheckedWithServer:
@@ -135,7 +135,7 @@ class cProductDetails(object):
   
   def fasGetLicenseWarnings(oSelf):
     asLicenseWarnings = [];
-    for oProductDetails in oSelf.doProductDetails_by_sName.values():
+    for oProductDetails in oSelf.__doLoadedProductDetails_by_sName.values():
       oProductDetails.__fCheckLicense();
       if oProductDetails.oLicense:
         # Warn if license will expire in one month.
@@ -150,9 +150,9 @@ class cProductDetails(object):
   
   def fasGetLicenseErrors(oSelf):
     asLicenseErrors = [];
-    for oProductDetails in oSelf.doProductDetails_by_sName.values():
+    for oProductDetails in oSelf.__doLoadedProductDetails_by_sName.values():
       for sDependentOnProductName in oProductDetails.asDependentOnProductNames:
-        assert sDependentOnProductName in oSelf.doProductDetails_by_sName, \
+        assert sDependentOnProductName in oSelf.__doLoadedProductDetails_by_sName, \
             "%s depends on %s, but no cProductDetails instance has been created for it." % \
             (oProductDetails.sProductName, sDependentOnProductName);
       oProductDetails.__fCheckLicense();
@@ -217,4 +217,5 @@ from .cDate import cDate;
 from .cLicense import cLicense;
 from .cLicenseCheckRegistry import cLicenseCheckRegistry;
 from .cLicenseCheckServer import cLicenseCheckServer;
-from .cLicenseCollection import cLicenseCollection;
+from oLicenseCollection import oLicenseCollection;
+

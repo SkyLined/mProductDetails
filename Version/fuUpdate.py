@@ -53,7 +53,7 @@ def fuUpdate(sMainScriptName, sFeatureName, asArguments, dsArguments):
     print "- Product details could not be read from %s!" % sProductFolderPath;
     return 2;
   oProductDetails.oProductVersion = cVersion.foNew();
-  if not oProductDetails.fbWriteForFolderPath(sProductFolderPath):
+  if not oProductDetails.fbWriteToInstallationFolderPath():
     print "- Product details could not be written to %s!" % sProductFolderPath;
     return 2;
   print "+ Version updated to %s." % oProductDetails.oProductVersion;
