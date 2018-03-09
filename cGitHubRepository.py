@@ -13,6 +13,7 @@ class cGitHubRepository(object):
     oSelf.sUserName = sUserName;
     oSelf.sRepositoryName = sRepositoryName;
     oSelf.sBranch = sBranch;
+    oSelf.sRepositoryURL = "https://github.com/%s/%s/tree/%s" % (sUserName, sRepositoryName, sBranch);
     oSelf.sProductDetailsJSONURL = "https://raw.githubusercontent.com/%s/%s/%s/dxProductDetails.json" % \
       (sUserName, sRepositoryName, sBranch);
     oSelf.sLatestVersionURL = "https://github.com/%s/%s/archive/%s.zip" % (sUserName, sRepositoryName, sBranch);
@@ -22,6 +23,6 @@ class cGitHubRepository(object):
     return fsGetHTTPResponseData(
       sURL = oSelf.sProductDetailsJSONURL,
       sPostData = None, 
-      sURLNameInException = "The GitHub repository",
+      sURLNameInException = "The product details in the GitHub repository at %s" % oSelf.sRepositoryURL,
       cException = cGitHubRepository.cGitHubServerErrorException,
     );
