@@ -11,11 +11,11 @@ def foGetLicenseCollectionForAllLoadedProducts():
   asLoadedProductNames = [oProductDetails.sProductName for oProductDetails in aoLoadedProductDetails];
   # Read all license stored in the registry:
   aoLicensesFromRegistry = cLicenseRegistryCache.faoReadLicensesFromRegistry();
-  print "Licenses cached in registry:";
-  if len(aoLicensesFromRegistry) == 0:
-    print "  - None";
-  for oLicense in aoLicensesFromRegistry:
-    print "  * %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
+#  print "Licenses cached in registry:";
+#  if len(aoLicensesFromRegistry) == 0:
+#    print "  - None";
+#  for oLicense in aoLicensesFromRegistry:
+#    print "  * %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
 
   asLicenseIdsFromRegistry = [oLicense.sLicenseId for oLicense in aoLicensesFromRegistry];
   # Select only licenses for any of the loaded products:
@@ -39,17 +39,17 @@ def foGetLicenseCollectionForAllLoadedProducts():
         oFile.close();
     except:
       asErrors.append("License file %s could not be read." % (sLicenseFilePath, oProductDetails.sProductName));
-    print "Licenses read from %s:" % sLicenseFilePath;
+#    print "Licenses read from %s:" % sLicenseFilePath;
     for oLicenseFromFile in cLicense.faoForLicenseBlocks(sLicenseBlocks):
       # Select only licenses for any of the loaded products:
       if oLicenseFromFile.sProductName not in asLoadedProductNames:
-        print "  - %s for %s (product not loaded)" % (oLicenseFromFile.sLicenseId, oLicenseFromFile.sProductName);
+#        print "  - %s for %s (product not loaded)" % (oLicenseFromFile.sLicenseId, oLicenseFromFile.sProductName);
         continue;
       # Add only licenses that were not already loaded from the registry:
       if oLicenseFromFile.sLicenseId in asLicenseIdsFromRegistry:
-        print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, oLicenseFromFile.sProductName);
+#        print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, oLicenseFromFile.sProductName);
         continue;
-      print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, oLicenseFromFile.sProductName);
+#      print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, oLicenseFromFile.sProductName);
       aoLoadedProductLicenses.append(oLicenseFromFile);
       if not oLicenseFromFile.fbWriteToRegistry():
         asWarnings.append("The license with id %s for product %s from file %s could not be cached in the registry." % \
