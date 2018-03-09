@@ -57,6 +57,8 @@ class cProductDetails(object):
   def __init__(oSelf,
     sProductName,
     oProductVersion,
+    sProductAuthor,
+    sProductURL,
     sTrialPeriodDuration,
     sLicenseServerURL,
     oRepository,
@@ -64,6 +66,8 @@ class cProductDetails(object):
   ):
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
+    oSelf.sProductAuthor = sProductAuthor;
+    oSelf.sProductURL = sProductURL;
     oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
     oSelf.oRepository = oRepository;
@@ -136,6 +140,8 @@ goProductDetailsDataStructure = cDataStructure(
   {
     "sProductName": "string", 
     "oProductVersion": "version",
+    "sProductAuthor": "string", 
+    "sProductURL": "string", 
     "sTrialPeriodDuration": ("string", "-"),
     "sLicenseServerURL": "string",
     "oRepository": (

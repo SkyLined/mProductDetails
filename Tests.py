@@ -14,8 +14,8 @@ aoProductDetails = mProductDetails.faoGetProductDetailsForAllLoadedModules();
 aoProductDetails.remove(oMainProductDetails);
 aoProductDetails.insert(0, oMainProductDetails);
 for oProductDetails in aoProductDetails:
-  print "+ \"%s\" version \"%s\" installed in \"%s\"." % \
-      (oProductDetails.sProductName, oProductDetails.oProductVersion, oProductDetails.sInstallationFolderPath);
+  print "+ \"%s\" version \"%s\" by \"%s\" installed in \"%s\"." % \
+      (oProductDetails.sProductName, oProductDetails.oProductVersion, oProductDetails.sProductAuthor, oProductDetails.sInstallationFolderPath);
 print;
 
 oLicenseCollection = mProductDetails.foGetLicenseCollectionForAllLoadedProducts();
