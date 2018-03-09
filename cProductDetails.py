@@ -1,4 +1,4 @@
-import os;
+import os, sys;
 
 # The imports are at the end to prevent import loops.
 
@@ -7,24 +7,32 @@ gsJSONFileName = "dxProductDetails.json";
 # goProductDetailsDataStructure is defined at the end of the file because it must refer to cProductDetails
 
 class cProductDetails(object):
-  __doLoadedProductDetails_by_sName = {}; # Stores information on all loaded products.
+  __doProductDetails_by_mModule = {}; # Maps loaded modules to product details.
+  
   @staticmethod
-  def foGetForProductName(sProductName):
-    oProductDetails = cProductDetails.__doLoadedProductDetails_by_sName.get(sProductName);
-    assert oProductDetails, \
-        "No cProductDetails instance has been created for %s" % sProductName;
+  def foGetForModule(mProductModule):
+    # Load and return product details for a specific module (if it has them).
+    if mProductModule in cProductDetails.__doProductDetails_by_mModule:
+      return cProductDetails.__doProductDetails_by_mModule[mProductModule];
+    oProductDetails = None; 
+    if hasattr(mProductModule, "__file__"): # This is not a built-in module
+      sProductFolderPath = os.path.normpath(os.path.abspath(os.path.dirname(mProductModule.__file__)));
+      oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
+    cProductDetails.__doProductDetails_by_mModule[mProductModule] = oProductDetails;
     return oProductDetails;
-  @staticmethod
-  def foReadForMainModule():
-    import __main__;
-    return cProductDetails.foReadForModule(__main__);
-  @staticmethod
-  def foReadForModule(mProductModule):
-    sProductFolderPath = os.path.dirname(mProductModule.__file__);
-    return cProductDetails.foReadForFolderPath(sProductFolderPath);
+  
   @staticmethod
   def foReadForFolderPath(sProductFolderPath):
+    # It appears that a module can be loaded multiple times from the same location. The same product details
+    # can be reused for all of them:
+    for oProductDetails in cProductDetails.__doProductDetails_by_mModule.values():
+      if oProductDetails and oProductDetails.sInstallationFolderPath.lower() == sProductFolderPath.lower():
+        return oProductDetails; # Reuse existing product details.
+    
+    # Load and return product details
     sJSONFilePath = os.path.join(sProductFolderPath, gsJSONFileName);
+    if not os.path.isfile(sJSONFilePath): # This module has a product details JSON file.
+      return None;
     oJSONFile = open(sJSONFilePath, "rb");
     try:
       sProductDetailsJSONData = oJSONFile.read();
@@ -36,12 +44,7 @@ class cProductDetails(object):
       sBasePath = sProductFolderPath,
     );
     oProductDetails.sInstallationFolderPath = sProductFolderPath;
-    cProductDetails.__doLoadedProductDetails_by_sName[oProductDetails.sProductName] = oProductDetails;
     return oProductDetails;
-
-  @staticmethod
-  def faoGetAllLoadedProductDetails():
-    return cProductDetails.__doLoadedProductDetails_by_sName.values();
   
   @staticmethod
   def foFromJSONData(sProductDetailsJSONData, sDataNameInError, sBasePath = None):
@@ -59,18 +62,14 @@ class cProductDetails(object):
     oRepository,
     asDependentOnProductNames,
   ):
-    assert sProductName not in oSelf.__doLoadedProductDetails_by_sName, \
-        "Product %s should not be created twice" % sProductName;
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
     oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
     oSelf.oRepository = oRepository;
     oSelf.asDependentOnProductNames = asDependentOnProductNames;
+    oSelf.sInstallationFolderPath = None;
     
-    oSelf.oLicenseCollection = oLicenseCollection;
-    oSelf.oLicenseCheckServer = cLicenseCheckServer(sLicenseServerURL);
-    oSelf.__sInstallationFolderPath = None;
     oSelf.__oLicense = None;
     oSelf.__oLatestProductDetailsFromRepository = None;
     oSelf.__bCheckedWithServer = False;
@@ -93,75 +92,20 @@ class cProductDetails(object):
     return True;
   
   @property
-  def sInstallationFolderPath(oSelf):
-    return oSelf.__sInstallationFolderPath;
-  
-  @sInstallationFolderPath.setter
-  def sInstallationFolderPath(oSelf, sInstallationFolderPath):
-    oSelf.__sInstallationFolderPath = sInstallationFolderPath;
-    oSelf.oLicenseCollection.faoAddLicenses(
-      cLicense.faoReadLicensesFromFolderPath(sInstallationFolderPath),
-    );
-  
-  def __fCheckLicense(oSelf):
-    if not oSelf.__bCheckedWithServer:
-      oFirstRunDate = cLicenseCheckRegistry.foGetOrSetFirstRunDate(oSelf.sProductName);
-      assert oFirstRunDate, \
-          "Cannot write to the registry";
-      oSelf.oLicenseCollection.fCheckWithRegistryOrServer(oSelf.oLicenseCheckServer);
-  
-  @property
-  def oLicense(oSelf):
-    if oSelf.__oLicense is None:
-      oSelf.__oLicense = oSelf.oLicenseCollection.foGetLicenseForProductName(oSelf.sProductName);
-    return oSelf.__oLicense;
-  
-  @property
   def bHasTrialPeriod(oSelf):
     return oSelf.sTrialPeriodDuration is not None;
   
   @property
   def oTrialPeriodEndDate(oSelf):
-    oSelf.__fCheckLicense();
     if not oSelf.bHasTrialPeriod:
       return None;
     # Find out when the application was first run and when the trial period will end.
-    oFirstRunDate = cLicenseCheckRegistry.foGetFirstRunDate(oSelf.sProductName);
+    oFirstRunDate = cLicenseRegistryCache.foGetOrSetFirstRunDate(oSelf.sProductName);
     return oFirstRunDate.foEndDateForDuration(oSelf.sTrialPeriodDuration);
   
   @property
   def bInTrialPeriod(oSelf):
     return oSelf.oTrialPeriodEndDate and cDate.foNow() <= oSelf.oTrialPeriodEndDate;
-  
-  def fasGetLicenseWarnings(oSelf):
-    asLicenseWarnings = [];
-    for oProductDetails in oSelf.__doLoadedProductDetails_by_sName.values():
-      oProductDetails.__fCheckLicense();
-      if oProductDetails.oLicense:
-        # Warn if license will expire in one month.
-        if cDate.foNow().foEndDateForDuration("1m") > oProductDetails.oLicense.oEndDate:
-          asLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
-              (oProductDetails.sProductName, oProductDetails.oLicense.sLicenseId, oProductDetails.oLicense.oEndDate));
-      elif oProductDetails.bInTrialPeriod:
-        # Warn if in trial period
-        asLicenseWarnings.append("Your trial period for %s will end on %s." % \
-            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate));
-    return asLicenseWarnings;
-  
-  def fasGetLicenseErrors(oSelf):
-    asLicenseErrors = [];
-    for oProductDetails in oSelf.__doLoadedProductDetails_by_sName.values():
-      for sDependentOnProductName in oProductDetails.asDependentOnProductNames:
-        assert sDependentOnProductName in oSelf.__doLoadedProductDetails_by_sName, \
-            "%s depends on %s, but no cProductDetails instance has been created for it." % \
-            (oProductDetails.sProductName, sDependentOnProductName);
-      oProductDetails.__fCheckLicense();
-      if not oProductDetails.oLicense and not oProductDetails.bInTrialPeriod:
-        asLicenseErrors += oProductDetails.oLicenseCollection.fasGetErrors(oProductDetails.sProductName);
-        if oProductDetails.bHasTrialPeriod and not oProductDetails.bInTrialPeriod:
-          asLicenseErrors.append("Your trial period for %s expired on %s" % \
-              (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate));
-    return asLicenseErrors;
   
   @property
   def oLatestProductDetailsFromRepository(oSelf):
@@ -180,11 +124,11 @@ class cProductDetails(object):
   
   @property
   def bVersionIsUpToDate(oSelf):
-    oSelf.oLatestProductVersion and oSelf.oProductVersion >= oSelf.oLatestProductVersion;
+    return oSelf.oLatestProductVersion and oSelf.oProductVersion >= oSelf.oLatestProductVersion;
   
   @property
   def bVersionIsPreRelease(oSelf):
-    oSelf.oLatestProductVersion and oSelf.oProductVersion > oSelf.oLatestProductVersion;
+    return oSelf.oLatestProductVersion and oSelf.oProductVersion > oSelf.oLatestProductVersion;
 
 from .cDataStructure import cDataStructure;
 from .cGitHubRepository import cGitHubRepository;
@@ -214,8 +158,4 @@ goProductDetailsDataStructure = cDataStructure(
 );
 
 from .cDate import cDate;
-from .cLicense import cLicense;
-from .cLicenseCheckRegistry import cLicenseCheckRegistry;
-from .cLicenseCheckServer import cLicenseCheckServer;
-from oLicenseCollection import oLicenseCollection;
-
+from .cLicenseRegistryCache import cLicenseRegistryCache;

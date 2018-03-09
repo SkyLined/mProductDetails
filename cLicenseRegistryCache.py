@@ -5,6 +5,11 @@ gsMainKeyPath = "Software\SkyLined";
 # Optional TODO: cleanup the registry by removing cached data for expired certificates.
 
 # Create some convenience functions for getting values:
+def fsGetStringValue(oRegistryHiveKey, sValueName):
+  oDateRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
+  if oDateRegistryValue is None or oDateRegistryValue.sTypeName != "REG_SZ":
+    return None;
+  return oDateRegistryValue.xValue;
 def fbGetBooleanValue(oRegistryHiveKey, sValueName):
   oRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
   if oRegistryValue is None or oRegistryValue.sTypeName != "REG_DWORD":
@@ -16,6 +21,15 @@ def foGetDateValue(oRegistryHiveKey, sValueName):
     return None;
   return cDate.foFromString(oDateRegistryValue.xValue);
 # Create some convenience functions for setting values:
+def fbSetStringValue(oRegistryHiveKey, sValueName, sValue):
+  bResult = oRegistryHiveKey.foSetNamedValue(
+    sValueName = sValueName, 
+    sTypeName = "REG_SZ",
+    xValue = sValue,
+  ) is not None;
+  if not bResult:
+    print "Cannot write %s = %s to registry" % (sValueName, repr(sValue));
+  return bResult;
 def fbSetBooleanValue(oRegistryHiveKey, sValueName, bValue):
   bResult = oRegistryHiveKey.foSetNamedValue(
     sValueName = sValueName,
@@ -32,16 +46,17 @@ def fbSetDateValue(oRegistryHiveKey, sValueName, oValue):
     xValue = str(oValue),
   ) is not None;
   if not bResult:
-    print "Cannot write %s = %s to registry" % (sValueName, repr(bValue));
+    print "Cannot write %s = %s to registry" % (sValueName, repr(oValue));
   return bResult;
 
-class cLicenseCheckRegistry(object):
+class cLicenseRegistryCache(object):
   @staticmethod
   def faoReadLicensesFromRegistry(sProductName = None):
     oProductsRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
       sKeyName = gsMainKeyPath,
     );
+    oProductsRegistryHiveKey.fbCreate(); # Make sure this key exists.
     if sProductName:
       asProductNames = [sProductName];
     else:
@@ -79,7 +94,7 @@ class cLicenseCheckRegistry(object):
   
   @staticmethod
   def foGetOrSetFirstRunDate(sProductName):
-    oFirstRunDate = cLicenseCheckRegistry.foGetFirstRunDate(sProductName);
+    oFirstRunDate = cLicenseRegistryCache.foGetFirstRunDate(sProductName);
     if not oFirstRunDate:
       oProductRegistryHiveKey = cRegistryHiveKey(
         sHiveName = "HKCU",
@@ -102,8 +117,8 @@ class cLicenseCheckRegistry(object):
     bLicenseIsValid = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid");
     if bLicenseIsValid is None:
       return None;
-    bLicenseIsRevoked = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsRevoked");
-    if bLicenseIsRevoked is None:
+    sLicenseIsRevokedForReason = fsGetStringValue(oSelf.__oRegistryHiveKey, "sLicenseIsRevokedForReason");
+    if sLicenseIsRevokedForReason is None:
       return None;
     bLicenseInstancesExceeded = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseInstancesExceeded");
     if bLicenseInstancesExceeded is None:
@@ -114,7 +129,7 @@ class cLicenseCheckRegistry(object):
     
     return cLicenseCheckResult(
       bLicenseIsValid = bLicenseIsValid,
-      bLicenseIsRevoked = bLicenseIsRevoked,
+      sLicenseIsRevokedForReason = sLicenseIsRevokedForReason,
       bLicenseInstancesExceeded = bLicenseInstancesExceeded,
       oNextCheckWithServerDate = oNextCheckWithServerDate,
     );
@@ -130,11 +145,14 @@ class cLicenseCheckRegistry(object):
     # Write the values, return False if one fails.
     return (
       fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid", oLicenseCheckResult.bLicenseIsValid)
-      and fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsRevoked", oLicenseCheckResult.bLicenseIsRevoked)
+      and fbSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseIsRevokedForReason", oLicenseCheckResult.sLicenseIsRevokedForReason)
       and fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseInstancesExceeded", oLicenseCheckResult.bLicenseInstancesExceeded)
       and fbSetDateValue(oSelf.__oRegistryHiveKey, "oNextCheckWithServerDate", oLicenseCheckResult.oNextCheckWithServerDate)
     );
-
+  
+  def fbRemove(oSelf):
+    return oSelf.__oRegistryHiveKey.fbDelete();
+  
 from .cDate import cDate;
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;

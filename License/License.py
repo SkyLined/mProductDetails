@@ -9,7 +9,6 @@ asOriginalSysPath = sys.path[:];
 sys.path = [sMainFolderPath, sParentFolderPath, sModulesFolderPath] + sys.path;
 
 from fuGenerate import fuGenerate;
-from fuRegister import fuRegister;
 from fuShow import fuShow;
 
 # Restore the search path
@@ -17,13 +16,11 @@ sys.path = asOriginalSysPath;
 
 dFeature_fuMain_by_sName = {
   "generate": fuGenerate,
-  "register": fuRegister,
   "show": fuShow,
 };
 dFeature_sDescription_by_sName = {
-  "generate": "generate a new license.",
-  "register": "register a license on this system.",
-  "show":     "show licenses registered on this system.",
+  "generate": "generate a new license and register it with the license server.",
+  "show":     "show licenses stored in the registery on this system.",
 };
 
 def fUsage(sMainScriptName):

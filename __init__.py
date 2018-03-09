@@ -1,1 +1,5 @@
-from .cProductDetails import cProductDetails;
+from .faoGetProductDetailsForAllLoadedModules import faoGetProductDetailsForAllLoadedModules;
+from .foGetLicenseCollectionForAllLoadedProducts import foGetLicenseCollectionForAllLoadedProducts;
+from .foGetProductDetailsForMainModule import foGetProductDetailsForMainModule;
+from .faoGetLicensesFromRegistry import faoGetLicensesFromRegistry;
+

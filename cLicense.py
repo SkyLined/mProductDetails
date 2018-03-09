@@ -1,5 +1,4 @@
 import hashlib, hmac, re;
-import mFileSystem;
 
 from .cErrorException import cErrorException;
 # The rest of the imports are at the end to prevent import loops.
@@ -22,24 +21,10 @@ grLicenseBlock = re.compile("".join([
 ]));
 grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?) +\|");
 import __main__;
-gsDefaultLicenseFileName = "#License.asc";
 
 class cLicense(object):
   class cSyntaxErrorException(cErrorException):
     pass;
-  
-  @staticmethod
-  def faoReadLicensesFromFolderPath(sFolderPath):
-    return cLicense.faoReadLicensesFromFilePath(mFileSystem.fsPath(sFolderPath, gsDefaultLicenseFileName));
-  
-  @staticmethod
-  def faoReadLicensesFromFilePath(sLicenseFilePath, sProductName = None):
-    if not mFileSystem.fbIsFile(sLicenseFilePath):
-      return [];
-    return cLicense.faoForLicenseBlocks(
-      sLicenseBlocks = mFileSystem.fsReadDataFromFile(sLicenseFilePath),
-      sProductName = sProductName,
-    );
   
   @staticmethod
   def faoForLicenseBlocks(sLicenseBlocks, sProductName = None):
@@ -111,8 +96,12 @@ class cLicense(object):
     oSelf.sLicenseURL = sLicenseURL;
     oSelf.sLicenseBlock = sLicenseBlock;
     
-    oSelf.__oLicenseCheckRegistry = cLicenseCheckRegistry(oSelf);
-    oSelf.__oLicenseCheckResult = None;
+    oSelf.__oLicenseRegistryCache = cLicenseRegistryCache(oSelf);
+    oSelf.__oLicenseCheckResult = oSelf.__oLicenseRegistryCache.foGetLicenseCheckResult();
+    oSelf.bNeedsToBeCheckedWithServer = (
+      oSelf.__oLicenseCheckResult is None
+      or oSelf.__oLicenseCheckResult.oNextCheckWithServerDate <= cDate.foNow()
+    );
   
   def fCreateLicenseBlock(oSelf, sHashingAlgorithmName, uHashLength, sSecretKey):
     cHashingAlgorithm = gdcHashingAlgorithm_by_sName[sHashingAlgorithmName];
@@ -153,57 +142,63 @@ class cLicense(object):
     oToday = cDate.foNow();
     return oSelf.oEndDate and oSelf.oEndDate < oToday;
   
-  def fCheckWithRegistryOrServer(oSelf, oLicenseCheckServer):
-    oSelf.__oLicenseCheckResult = None;
-    oToday = cDate.foNow();
-    oLicenseCheckResult = oSelf.__oLicenseCheckRegistry.foGetLicenseCheckResult();
-    # If the reigstry has cached check data, see if it's outdated:
-    if oLicenseCheckResult and oLicenseCheckResult.oNextCheckWithServerDate > oToday:
-      # The cached check data is fresh; use it.
-      oSelf.__oLicenseCheckResult = oLicenseCheckResult;
-    else:
-      oSelf.fCheckWithServer(oLicenseCheckServer);
+  def fbRemoveFromRegistry(oSelf):
+    return oSelf.__oLicenseRegistryCache.fbRemove();
   
-  def fCheckWithServer(oSelf, oLicenseCheckServer, bWriteToRegistry = True):
-    oSelf.__oLicenseCheckResult = None;
+  def fsCheckWithServerAndGetError(oSelf, oLicenseCheckServer):
     # Set bWriteToRegistry to True to disable caching of check results in the registry (e.g. in a system that
     # is used to generate licenses, you do not want to cache them).
-    oSelf.__oLicenseCheckResult = oLicenseCheckServer.foGetLicenseCheckResult(
-      sLicenseBlock = oSelf.sLicenseBlock,
-      sProductName = oSelf.sProductName,
-      sLicenseVersion = oSelf.sLicenseVersion,
-    );
-    if bWriteToRegistry:
-      assert oSelf.fbWriteCheckResultToRegistry(), \
-          "Cannot write to registry";
+    try:
+      oSelf.__oLicenseCheckResult = oLicenseCheckServer.foGetLicenseCheckResult(oSelf);
+    except cLicenseCheckServer.cServerErrorException as oServerErrorException:
+      return oServerErrorException.sMessage;
+    oSelf.bNeedsToBeCheckedWithServer = False;
+    assert oSelf.__oLicenseRegistryCache.fbSetLicenseCheckResult(oSelf.__oLicenseCheckResult), \
+        "Cannot write to registry";
+    return None;
   
-  def fbWriteCheckResultToRegistry(oSelf):
-    return oSelf.__oLicenseCheckRegistry.fbSetLicenseCheckResult(oSelf.__oLicenseCheckResult);
-
   def fbWriteToRegistry(oSelf):
-    return (
-      oSelf.__oLicenseCheckRegistry.fbSetLicenseCheckResult(oSelf.__oLicenseCheckResult)
-      and oSelf.__oLicenseCheckRegistry.fbSetLicenseBlock(oSelf.sLicenseBlock)
-    );
+    return oSelf.__oLicenseRegistryCache.fbSetLicenseBlock(oSelf.sLicenseBlock);
   
   @property
   def bIsValid(oSelf):
-    assert oSelf.__oLicenseCheckResult, \
-        "You need to call fCheckWithRegistryOrServer or fCheckWithServer successfully before reading bIsValid";
+    assert not oSelf.bNeedsToBeCheckedWithServer, \
+        "You need to call fsCheckWithServerAndReturnErrors successfully before reading bIsValid";
     return oSelf.__oLicenseCheckResult.bLicenseIsValid;
   
   @property
-  def bIsRevoked(oSelf):
-    assert oSelf.__oLicenseCheckResult, \
-        "You need to call fCheckWithRegistryOrServer or fCheckWithServer successfully before reading bIsRevoked";
-    return oSelf.__oLicenseCheckResult.bLicenseIsRevoked;
+  def sIsRevokedForReason(oSelf):
+    assert not oSelf.bNeedsToBeCheckedWithServer, \
+        "You need to call fsCheckWithServerAndReturnErrors successfully before reading bIsRevoked";
+    return oSelf.__oLicenseCheckResult.sLicenseIsRevokedForReason;
   
   @property
   def bLicenseInstancesExceeded(oSelf):
-    assert oSelf.__oLicenseCheckResult, \
-        "You need to call fCheckWithRegistryOrServer or fCheckWithServer successfully before reading bInstancesExceeded";
+    assert not oSelf.bNeedsToBeCheckedWithServer, \
+        "You need to call fsCheckWithServerAndReturnErrors successfully before reading bInstancesExceeded";
     return oSelf.__oLicenseCheckResult.bLicenseInstancesExceeded;
+  
+  def fsGetError(oSelf):
+    assert not oSelf.bNeedsToBeCheckedWithServer, \
+        "You need to call fsCheckWithServerAndReturnErrors successfully before calling fsGetError";
+    if oSelf.bIsExpired:
+      return "Your license for %s with id %s expired on %s." % \
+          (oSelf.sProductName, oSelf.sLicenseId, oSelf.oEndDate);
+    elif not oSelf.bIsActive:
+      return "Your license for %s with id %s activates on %s." % \
+          (oSelf.sProductName, oSelf.sLicenseId, oSelf.oStartDate);
+    elif not oSelf.bIsValid:
+      return "Your license for %s with id %s is not valid." % \
+          (oSelf.sProductName, oSelf.sLicenseId);
+    elif oSelf.sIsRevokedForReason:
+      return "Your license for %s with id %s has been revoked: %s." % \
+          (oSelf.sProductName, oSelf.sLicenseId, oSelf.sIsRevokedForReason);
+    elif oSelf.bLicenseInstancesExceeded:
+      return "Your license for %s with id %s has exceeded its maximum number of instances." % \
+          (oSelf.sProductName, oSelf.sLicenseId);
+    return None;
 
 from .cDate import cDate;
-from .cLicenseCheckRegistry import cLicenseCheckRegistry;
+from .cLicenseCheckServer import cLicenseCheckServer;
+from .cLicenseRegistryCache import cLicenseRegistryCache;
 from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;

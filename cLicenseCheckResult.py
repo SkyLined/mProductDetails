@@ -3,7 +3,7 @@ from .cDate import cDate;
 class cLicenseCheckResult(object):
   def __init__(oSelf, xUnused = None,
     bLicenseInstancesExceeded = None, 
-    bLicenseIsRevoked = None,
+    sLicenseIsRevokedForReason = None,
     bLicenseIsValid = None,
     oNextCheckWithServerDate = None,
   ):
@@ -13,10 +13,18 @@ class cLicenseCheckResult(object):
         "You must provide a value for bLicenseInstancesExceeded";
     assert isinstance(bLicenseInstancesExceeded, bool), \
         "You must provide a boolean value for bLicenseInstancesExceeded, not %s" % repr(bLicenseInstancesExceeded);
-    assert bLicenseIsRevoked is not None, \
-        "You must provide a value for bLicenseIsRevoked";
-    assert isinstance(bLicenseIsRevoked, bool), \
-        "You must provide a boolean value for bLicenseIsRevoked, not %s" % repr(bLicenseIsRevoked);
+    assert sLicenseIsRevokedForReason is not None, \
+        "You must provide a value for sLicenseIsRevokedForReason";
+    if isinstance(sLicenseIsRevokedForReason, unicode):
+      try:
+        sLicenseIsRevokedForReason = str(sLicenseIsRevokedForReason);
+      except:
+        raise AssertionError(
+          "You must provide an ASCII string value for sLicenseIsRevokedForReason, not %s" % repr(sLicenseIsRevokedForReason)
+        );
+    else:
+      assert isinstance(sLicenseIsRevokedForReason, str), \
+          "You must provide a string value for sLicenseIsRevokedForReason, not %s" % repr(sLicenseIsRevokedForReason);
     assert bLicenseIsValid is not None, \
         "You must provide a value for bLicenseIsValid";
     assert isinstance(bLicenseIsValid, bool), \
@@ -27,7 +35,7 @@ class cLicenseCheckResult(object):
         "You must provide a date value for oNextCheckWithServerDate, not %s" % repr(oNextCheckWithServerDate);
     
     oSelf.bLicenseInstancesExceeded = bLicenseInstancesExceeded;
-    oSelf.bLicenseIsRevoked = bLicenseIsRevoked;
+    oSelf.sLicenseIsRevokedForReason = sLicenseIsRevokedForReason;
     oSelf.bLicenseIsValid = bLicenseIsValid;
     oSelf.oNextCheckWithServerDate = oNextCheckWithServerDate;
 

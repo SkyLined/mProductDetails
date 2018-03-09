@@ -36,7 +36,7 @@ class cVersion(object):
         (
           (
             (
-              oSelf.uYear, 
+              oSelf.uYear
             ) * 12 + oSelf.uMonth
           ) * 31 + oSelf.uDay
         ) * 24 + oSelf.uHour
