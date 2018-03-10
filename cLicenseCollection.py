@@ -21,22 +21,22 @@ class cLicenseCollection(object):
     asLicenseErrors = oSelf.asLoadErrors[:];
     asLicenseWarnings = oSelf.asLoadWarnings[:];
     for oProductDetails in oSelf.aoProductDetails:
-      print "* Product: %s" % oProductDetails.sProductName;
+#      print "* Product: %s" % oProductDetails.sProductName;
       oLicenseCheckServer = doLicenseCheckServer_by_sProductName.get(oProductDetails.sProductName);
       asProductLicenseErrors = [];
       asProductLicenseWarnings = [];
       for oLicense in oSelf.aoLicenses:
         if oLicense.sProductName != oProductDetails.sProductName:
-          print "  - License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
+#          print "  - License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
           continue;
         if oLicense.bNeedsToBeCheckedWithServer:
-          print "  + License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
+#          print "  + License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
           sLicenseCheckServerError = oLicense.fsCheckWithServerAndGetError(oLicenseCheckServer);
           if sLicenseCheckServerError:
             asProductLicenseErrors.append(sLicenseCheckServerError);
             continue;
-        else:
-          print "  * License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
+#        else:
+#          print "  * License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
         sLicenseError = oLicense.fsGetError();
         if sLicenseError:
           asProductLicenseErrors.append(sLicenseError);
