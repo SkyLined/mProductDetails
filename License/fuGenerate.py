@@ -34,8 +34,6 @@ def fUsage(sMainScriptName, sFeatureName):
 
 
 def fuGenerate(sMainScriptName, sFeatureName, asArguments, dsArguments):
-  print repr(asArguments)
-  print repr(dsArguments);
   # Parse arguments
   asProductFolderPaths = [];
   sLicenseConfigurationFilePath = None;
