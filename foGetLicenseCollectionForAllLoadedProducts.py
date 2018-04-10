@@ -39,7 +39,7 @@ def foGetLicenseCollectionForAllLoadedProducts():
         oFile.close();
     except:
       asErrors.append("License file %s could not be read." % (sLicenseFilePath, oProductDetails.sProductName));
-    print "Licenses read from %s:" % sLicenseFilePath;
+#    print "Licenses read from %s:" % sLicenseFilePath;
     aoLicensesFromFile = cLicense.faoForLicenseBlocks(sLicenseBlocks);
     if not aoLicensesFromFile:
       asWarnings.append("No valid licenses were found in the file %s." % sLicenseFilePath);
