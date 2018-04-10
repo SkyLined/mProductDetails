@@ -6,6 +6,7 @@ sParentFolderPath = os.path.normpath(os.path.join(sMainFolderPath, ".."));
 sys.path = [sParentFolderPath] + sys.path;
 
 import mProductDetails;
+from fsToOxfordComma import fsToOxfordComma;
 
 print "Product version information:";
 oMainProductDetails = mProductDetails.foGetProductDetailsForMainModule();
@@ -37,6 +38,6 @@ print "Software license information in registry:";
 if not aoLicenses:
   print "- No licenses loaded";
 for oLicense in aoLicenses:
-  print "+ %s is licensed to use %s for %s on %d systems until %s with license id %s" % \
-      (oLicense.sLicenseeName, "/".join(oLicense.asProductNames), oLicense.sUsageTypeDescription, \
-      oLicense.uLicensedInstances, oLicense.oEndDate, oLicense.sLicenseId);
+  print "+ %s is licensed to use %s for %s on %d systems until %s with authentication %s" % \
+      (oLicense.sLicenseeName, fsToOxfordComma(oLicense.asProductNames), oLicense.sUsageTypeDescription, \
+      oLicense.uLicensedInstances, oLicense.oEndDate, oLicense.sAuthentication);
