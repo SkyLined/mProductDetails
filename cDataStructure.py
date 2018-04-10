@@ -44,7 +44,11 @@ class cDataStructure(object):
     return fxConvertToJSONData(oSelf.xStructureDetails, oData, sDataNameInError, sBasePath);
 
 def fxConvertFromJSONData(xStructureDetails, xJSONData, sDataNameInError, sBasePath):
-  if xStructureDetails.__class__ == cDataStructure:
+  if xStructureDetails is None:
+    if xJSONData is not None:
+      raise cDataStructure.cJSONSyntaxErrorException("%s should have no value, not %s" % (sDataNameInError, repr(xJSONData)));
+    return None;
+  elif xStructureDetails.__class__ == cDataStructure:
     return xStructureDetails.fxConvertFromJSONData(xJSONData, sDataNameInError, sBasePath);
   elif xStructureDetails.__class__ == tuple:
     # A tuple means a list of possible structures; try each until we find one that works:
@@ -123,10 +127,6 @@ def fxConvertFromJSONData(xStructureDetails, xJSONData, sDataNameInError, sBaseP
     if not oVersion:
       raise cDataStructure.cJSONSyntaxErrorException("%s should contain a version string, not %s" % (sDataNameInError, repr(xJSONData)));
     return oVersion;
-  elif xStructureDetails == "-":
-    if xJSONData is not None:
-      raise cDataStructure.cJSONSyntaxErrorException("%s should have no value, not %s" % (sDataNameInError, repr(xJSONData)));
-    return None;
   raise AssertionError("Unhandled structure type %s" % repr(xStructureDetails));
 
 def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
@@ -194,7 +194,7 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
     if xData.__class__ != cVersion:
       raise cDataStructure.cDataErrorException("%s should contain a version, not %s" % (sDataNameInError, repr(xData)));
     return str(xData);
-  elif xStructureDetails == "-":
+  elif xStructureDetails == None:
     if xData is not None:
       raise cDataStructure.cDataErrorException("%s should have no value, not %s" % (sDataNameInError, repr(xData)));
     return None;
