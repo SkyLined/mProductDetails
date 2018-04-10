@@ -1,6 +1,7 @@
 # The imports are at the end to prevent import loops.
 
-gsMainKeyPath = "Software\SkyLined";
+gsProductLicensesKeyPath = "Software\SkyLined\Licenses";
+gsProductFirstRunKeyPath = "Software\SkyLined\FirstRunDate";
 
 # Optional TODO: cleanup the registry by removing cached data for expired certificates.
 
@@ -51,46 +52,36 @@ def fbSetDateValue(oRegistryHiveKey, sValueName, oValue):
 
 class cLicenseRegistryCache(object):
   @staticmethod
-  def faoReadLicensesFromRegistry(sProductName = None):
-    oProductsRegistryHiveKey = cRegistryHiveKey(
+  def faoReadLicensesFromRegistry():
+    oProductLicensesRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = gsMainKeyPath,
+      sKeyName = gsProductLicensesKeyPath,
     );
-    oProductsRegistryHiveKey.fbCreate(); # Make sure this key exists.
-    if sProductName:
-      asProductNames = [sProductName];
-    else:
-      # Each product has its own sub-key under the main registry key
-      asProductNames = oProductsRegistryHiveKey.doSubKey_by_sName.keys();
+    oProductLicensesRegistryHiveKey.fbCreate(); # Make sure this key exists.
     aoLoadedLicenses = [];
-    for sProductName in asProductNames:
-      # Enumerate licenses by id in the registry
-      oProductLicensesRegistryHiveKey = oProductsRegistryHiveKey.foGetSubKey(r"%s\%s" % (sProductName, "Licenses"));
-      if not oProductLicensesRegistryHiveKey.bExists:
-        continue;
-      # Sanity check everything; discard anything that is not as it should be.
-      for (sLicensId, oLicenseRegistryHiveKey) in oProductLicensesRegistryHiveKey.doSubKey_by_sName.items():
-        oLicenseBlockRegistryValue = oLicenseRegistryHiveKey.foGetNamedValue(sValueName = "sLicenseBlock");
-        # Read the license block from the registry and parse it.
-        if oLicenseBlockRegistryValue is not None and oLicenseBlockRegistryValue.sTypeName == "REG_SZ":
-          sLicenseBlock = oLicenseBlockRegistryValue.xValue;
-          aoLicenses = cLicense.faoForLicenseBlocks(sLicenseBlock);
-          # The license block should have exactly one license and it should be for the right procuct and license is:
-          if (
-            len(aoLicenses) == 1
-            and aoLicenses[0].sProductName == sProductName
-            and aoLicenses[0].sLicenseId == sLicensId
-          ):
-            aoLoadedLicenses += aoLicenses;
+    # Each product has its own sub-key under the main registry key
+    # Sanity check everything; discard anything that is not as it should be.
+    for (sAuthentication, oLicenseRegistryHiveKey) in oProductLicensesRegistryHiveKey.doSubKey_by_sName.items():
+      oLicenseBlockRegistryValue = oLicenseRegistryHiveKey.foGetNamedValue(sValueName = "sLicenseBlock");
+      # Read the license block from the registry and parse it.
+      if oLicenseBlockRegistryValue is not None and oLicenseBlockRegistryValue.sTypeName == "REG_SZ":
+        sLicenseBlock = oLicenseBlockRegistryValue.xValue;
+        aoLicenses = cLicense.faoForLicenseBlocks(sLicenseBlock);
+        # The license block should have exactly one license and it should be for the license id it is stored under:
+        if (
+          len(aoLicenses) == 1
+          and aoLicenses[0].sAuthentication == sAuthentication
+        ):
+          aoLoadedLicenses += aoLicenses;
     return aoLoadedLicenses;
   
   @staticmethod
   def foGetFirstRunDate(sProductName):
     oProductRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = r"%s\%s" % (gsMainKeyPath, sProductName),
+      sKeyName = gsProductFirstRunKeyPath,
     );
-    return foGetDateValue(oProductRegistryHiveKey, "oFirstRunDate");
+    return foGetDateValue(oProductRegistryHiveKey, sProductName);
   
   @staticmethod
   def foGetOrSetFirstRunDate(sProductName):
@@ -98,10 +89,10 @@ class cLicenseRegistryCache(object):
     if not oFirstRunDate:
       oProductRegistryHiveKey = cRegistryHiveKey(
         sHiveName = "HKCU",
-        sKeyName = r"%s\%s" % (gsMainKeyPath, sProductName),
+        sKeyName = gsProductFirstRunKeyPath,
       );
       oFirstRunDate = cDate.foNow();
-      if not fbSetDateValue(oProductRegistryHiveKey, "oFirstRunDate", oFirstRunDate):
+      if not fbSetDateValue(oProductRegistryHiveKey, sProductName, oFirstRunDate):
         return None;
     return oFirstRunDate;
   
@@ -109,7 +100,7 @@ class cLicenseRegistryCache(object):
     # Open the registry
     oSelf.__oRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = "Software\SkyLined\%s\Licenses\%s" % (oLicense.sProductName, oLicense.sLicenseId),
+      sKeyName = "%s\%s" % (gsProductLicensesKeyPath, oLicense.sAuthentication),
     );
   
   def foGetLicenseCheckResult(oSelf):
@@ -117,19 +108,33 @@ class cLicenseRegistryCache(object):
     bLicenseIsValid = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid");
     if bLicenseIsValid is None:
       return None;
-    sLicenseIsRevokedForReason = fsGetStringValue(oSelf.__oRegistryHiveKey, "sLicenseIsRevokedForReason");
-    if sLicenseIsRevokedForReason is None:
-      return None;
-    bLicenseInstancesExceeded = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseInstancesExceeded");
-    if bLicenseInstancesExceeded is None:
-      return None;
+    bInLicensePeriod = None;
+    sLicenseIsRevokedForReason = None;
+    bDeactivatedOnSystem = None;
+    bLicenseInstancesExceeded = None;
+    if bLicenseIsValid:
+      bInLicensePeriod = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bInLicensePeriod");
+      if bInLicensePeriod is None:
+        return None;
+      if bInLicensePeriod:
+        sLicenseIsRevokedForReason = fsGetStringValue(oSelf.__oRegistryHiveKey, "sLicenseIsRevokedForReason");
+        if sLicenseIsRevokedForReason is None:
+          bDeactivatedOnSystem = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bDeactivatedOnSystem");
+          if bDeactivatedOnSystem is None:
+            return None;
+          if not bDeactivatedOnSystem:
+            bLicenseInstancesExceeded = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseInstancesExceeded");
+            if bLicenseInstancesExceeded is None:
+              return None;
     oNextCheckWithServerDate = foGetDateValue(oSelf.__oRegistryHiveKey, "oNextCheckWithServerDate");
     if oNextCheckWithServerDate is None:
       return None;
     
     return cLicenseCheckResult(
       bLicenseIsValid = bLicenseIsValid,
+      bInLicensePeriod = bInLicensePeriod,
       sLicenseIsRevokedForReason = sLicenseIsRevokedForReason,
+      bDeactivatedOnSystem = bDeactivatedOnSystem,
       bLicenseInstancesExceeded = bLicenseInstancesExceeded,
       oNextCheckWithServerDate = oNextCheckWithServerDate,
     );
@@ -143,12 +148,29 @@ class cLicenseRegistryCache(object):
   
   def fbSetLicenseCheckResult(oSelf, oLicenseCheckResult):
     # Write the values, return False if one fails.
-    return (
-      fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid", oLicenseCheckResult.bLicenseIsValid)
-      and fbSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseIsRevokedForReason", oLicenseCheckResult.sLicenseIsRevokedForReason)
-      and fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseInstancesExceeded", oLicenseCheckResult.bLicenseInstancesExceeded)
-      and fbSetDateValue(oSelf.__oRegistryHiveKey, "oNextCheckWithServerDate", oLicenseCheckResult.oNextCheckWithServerDate)
-    );
+    if not fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid", oLicenseCheckResult.bLicenseIsValid):
+      return False;
+    if not oLicenseCheckResult.bLicenseIsValid:
+      return True;
+    if not fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bInLicensePeriod", oLicenseCheckResult.bInLicensePeriod):
+      return False;
+    if not oLicenseCheckResult.bInLicensePeriod:
+      return True;
+    if not fbSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseIsRevokedForReason", oLicenseCheckResult.sLicenseIsRevokedForReason):
+      return False;
+    if oLicenseCheckResult.sLicenseIsRevokedForReason:
+      return True;
+    if not fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bDeactivatedOnSystem", oLicenseCheckResult.bDeactivatedOnSystem):
+      return False;
+    if oLicenseCheckResult.bDeactivatedOnSystem:
+      return True;
+    if not fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseInstancesExceeded", oLicenseCheckResult.bLicenseInstancesExceeded):
+      return False;
+    if oLicenseCheckResult.bLicenseInstancesExceeded:
+      return True;
+    if not fbSetDateValue(oSelf.__oRegistryHiveKey, "oNextCheckWithServerDate", oLicenseCheckResult.oNextCheckWithServerDate):
+      return False;
+    return True;
   
   def fbRemove(oSelf):
     return oSelf.__oRegistryHiveKey.fbDelete();

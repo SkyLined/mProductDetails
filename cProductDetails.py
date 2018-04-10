@@ -96,6 +96,12 @@ class cProductDetails(object):
     return True;
   
   @property
+  def oLicense(oSelf):
+    if oSelf.__oLicense is None:
+      oSelf.__oLicense = foGetLicenseCollectionForAllLoadedProducts().foGetLicenseForProductDetails(oSelf);
+    return oSelf.__oLicense;
+  
+  @property
   def bHasTrialPeriod(oSelf):
     return oSelf.sTrialPeriodDuration is not None;
   
@@ -142,7 +148,7 @@ goProductDetailsDataStructure = cDataStructure(
     "oProductVersion": "version",
     "sProductAuthor": "string", 
     "sProductURL": "string", 
-    "sTrialPeriodDuration": ("string", "-"),
+    "sTrialPeriodDuration": ("string", None),
     "sLicenseServerURL": "string",
     "oRepository": (
       cDataStructure(
@@ -165,3 +171,4 @@ goProductDetailsDataStructure = cDataStructure(
 
 from .cDate import cDate;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
+from .foGetLicenseCollectionForAllLoadedProducts import foGetLicenseCollectionForAllLoadedProducts;

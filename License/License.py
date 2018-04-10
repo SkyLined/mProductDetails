@@ -8,18 +8,15 @@ sModulesFolderPath = os.path.join(sMainFolderPath, "modules");
 asOriginalSysPath = sys.path[:];
 sys.path = [sMainFolderPath, sParentFolderPath, sModulesFolderPath] + sys.path;
 
-from fuGenerate import fuGenerate;
 from fuShow import fuShow;
 
 # Restore the search path
 sys.path = asOriginalSysPath;
 
 dFeature_fuMain_by_sName = {
-  "generate": fuGenerate,
   "show": fuShow,
 };
 dFeature_sDescription_by_sName = {
-  "generate": "generate a new license and register it with the license server.",
   "show":     "show licenses stored in the registery on this system.",
 };
 

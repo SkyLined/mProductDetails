@@ -1,0 +1,4 @@
+def ftasGetLicenseErrorsAndWarnings():
+  return foGetLicenseCollectionForAllLoadedProducts().ftasGetLicenseErrorsAndWarnings();
+
+from .foGetLicenseCollectionForAllLoadedProducts import foGetLicenseCollectionForAllLoadedProducts;

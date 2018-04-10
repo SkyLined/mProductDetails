@@ -1,6 +1,6 @@
+from .faoGetLicensesFromRegistry import faoGetLicensesFromRegistry;
 from .faoGetProductDetailsForAllLoadedModules import faoGetProductDetailsForAllLoadedModules;
 from .foGetLicenseCollectionForAllLoadedProducts import foGetLicenseCollectionForAllLoadedProducts;
 from .foGetProductDetailsForMainModule import foGetProductDetailsForMainModule;
 from .foGetProductDetailsForModule import foGetProductDetailsForModule;
-from .faoGetLicensesFromRegistry import faoGetLicensesFromRegistry;
-
+from .ftasGetLicenseErrorsAndWarnings import ftasGetLicenseErrorsAndWarnings;

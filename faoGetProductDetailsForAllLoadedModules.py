@@ -1,5 +1,4 @@
 import sys;
-from .cProductDetails import cProductDetails;
 
 def faoGetProductDetailsForAllLoadedModules():
   doProductDetails_by_sProductName = {};
@@ -15,3 +14,4 @@ def faoGetProductDetailsForAllLoadedModules():
         doProductDetails_by_sProductName[oProductDetails.sProductName] = oProductDetails;
   return doProductDetails_by_sProductName.values();
 
+from .cProductDetails import cProductDetails;

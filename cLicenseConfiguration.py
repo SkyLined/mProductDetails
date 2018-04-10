@@ -15,7 +15,7 @@ class cLicenseConfiguration(object):
       [
         cDataStructure(
           {
-            "sProductName": "string",
+            "asProductNames": ["string"],
             "sLicenseVersion": "string",
             "sLicenseURL": "string",
             "sHashingAlgorithmName": "string",
@@ -34,7 +34,7 @@ class cLicenseConfiguration(object):
     );
 
   def __init__(oSelf,
-    sProductName,
+    asProductNames,
     sLicenseVersion,
     sLicenseURL,
     sHashingAlgorithmName,
@@ -42,7 +42,7 @@ class cLicenseConfiguration(object):
     sSecretKey,
     dsUsageTypeDescription_by_sKeyword,
   ):
-    oSelf.sProductName = sProductName;
+    oSelf.asProductNames = asProductNames;
     oSelf.sLicenseVersion = sLicenseVersion;
     oSelf.sLicenseURL = sLicenseURL;
     oSelf.sHashingAlgorithmName = sHashingAlgorithmName;
@@ -50,13 +50,13 @@ class cLicenseConfiguration(object):
     oSelf.sSecretKey = sSecretKey;
     oSelf.dsUsageTypeDescription_by_sKeyword = dsUsageTypeDescription_by_sKeyword;
   
-  def foCreateLicense(oSelf, sProductName, sLicenseeName, sUsageTypeKeyWord, uLicensedInstances, oStartDate, oEndDate):
+  def foCreateLicense(oSelf, asProductNames, sLicenseeName, sUsageTypeKeyWord, uLicensedInstances, oStartDate, oEndDate):
     sUsageTypeDescription = oSelf.dsUsageTypeDescription_by_sKeyword.get(sUsageTypeKeyWord);
     assert sUsageTypeDescription, \
         "Unknown usage type keyword %s" % sUsageTypeKeyWord;
     # Create some random number ot use as the license id.
     oLicense = cLicense(
-      sProductName = sProductName,
+      asProductNames = asProductNames,
       sLicenseeName = sLicenseeName,
       sUsageTypeDescription = sUsageTypeDescription,
       uLicensedInstances = uLicensedInstances,

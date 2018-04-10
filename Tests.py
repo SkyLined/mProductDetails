@@ -37,6 +37,6 @@ print "Software license information in registry:";
 if not aoLicenses:
   print "- No licenses loaded";
 for oLicense in aoLicenses:
-  print "+ %s is licensed to %s for %s on %d systems until %s with license id %s" % \
-      (oLicense.sProductName, oLicense.sLicenseeName, oLicense.sUsageTypeDescription, \
+  print "+ %s is licensed to use %s for %s on %d systems until %s with license id %s" % \
+      (oLicense.sLicenseeName, "/".join(oLicense.asProductNames), oLicense.sUsageTypeDescription, \
       oLicense.uLicensedInstances, oLicense.oEndDate, oLicense.sLicenseId);

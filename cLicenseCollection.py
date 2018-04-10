@@ -1,3 +1,6 @@
+
+gbDebugOutput  = False;
+
 # The imports are at the end to prevent import loops.
 class cLicenseCollection(object):
   # A license collection is a list of licenses which offers some convenience functions to import and export them, check
@@ -8,46 +11,48 @@ class cLicenseCollection(object):
     oSelf.aoLicenses = aoLicenses;
     oSelf.asLoadErrors = asLoadErrors;
     oSelf.asLoadWarnings = asLoadWarnings;
+    oSelf.__tasErrorsAndWarnings = None;
   
   def ftasGetLicenseErrorsAndWarnings(oSelf):
+    if oSelf.__tasErrorsAndWarnings is not None:
+      return oSelf.__tasErrorsAndWarnings;
     doProductDetails_by_sProductName = dict([
       (oProductDetails.sProductName, oProductDetails)
       for oProductDetails in oSelf.aoProductDetails
     ]);
-    doLicenseCheckServer_by_sProductName = dict([
-      (oProductDetails.sProductName, cLicenseCheckServer(oProductDetails.sLicenseServerURL))
-      for oProductDetails in oSelf.aoProductDetails
-    ]);
+    oLicenseCheckServer = cLicenseCheckServer(oProductDetails.sLicenseServerURL);
     asLicenseErrors = oSelf.asLoadErrors[:];
     asLicenseWarnings = oSelf.asLoadWarnings[:];
     for oProductDetails in oSelf.aoProductDetails:
-#      print "* Product: %s" % oProductDetails.sProductName;
-      oLicenseCheckServer = doLicenseCheckServer_by_sProductName.get(oProductDetails.sProductName);
+      if gbDebugOutput: print "* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails));
+      bFoundValidLicense = False;
       asProductLicenseErrors = [];
       asProductLicenseWarnings = [];
       for oLicense in oSelf.aoLicenses:
-        if oLicense.sProductName != oProductDetails.sProductName:
-#          print "  - License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
+        if gbDebugOutput: print "  * License: %s %X" % (oLicense.sLicenseId, id(oLicense));
+        if oProductDetails.sProductName not in oLicense.asProductNames:
+          if gbDebugOutput: print "    - for product %s" % (oLicense.sProductName);
           continue;
         if oLicense.bNeedsToBeCheckedWithServer:
-#          print "  + License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
+          if gbDebugOutput: print "    * Checking with server...";
           sLicenseCheckServerError = oLicense.fsCheckWithServerAndGetError(oLicenseCheckServer);
           if sLicenseCheckServerError:
+            if gbDebugOutput: print "    - %s" % sLicenseCheckServerError;
             asProductLicenseErrors.append(sLicenseCheckServerError);
             continue;
-#        else:
-#          print "  * License: %s for %s" % (oLicense.sLicenseId, oLicense.sProductName);
         sLicenseError = oLicense.fsGetError();
         if sLicenseError:
+          if gbDebugOutput: print "    - %s" % sLicenseError;
           asProductLicenseErrors.append(sLicenseError);
           continue;
-        # This license is valid; warn if license will expire in one month or less.
+        if gbDebugOutput: print "    + OK";
+        # This license is valid
+        bFoundValidLicense = True;
+        # warn if license will expire in one month or less.
         if cDate.foNow().foEndDateForDuration("1m") > oLicense.oEndDate:
           asProductLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
               (oProductDetails.sProductName, oLicense.sLicenseId, oLicense.oEndDate));
-        # Stop looking for a valid license since we found one
-        break;
-      else:
+      if not bFoundValidLicense:
         if asProductLicenseErrors:
           # No valid license found; report the errors for the licenses
           if oProductDetails.bHasTrialPeriod and oProductDetails.bInTrialPeriod:
@@ -73,15 +78,30 @@ class cLicenseCollection(object):
           );
         asLicenseErrors += asProductLicenseErrors;
         asLicenseWarnings += asProductLicenseWarnings;
-    return (asLicenseErrors, asLicenseWarnings);
+    oSelf.__tasErrorsAndWarnings = (asLicenseErrors, asLicenseWarnings);
+    return oSelf.__tasErrorsAndWarnings;
   
   def foGetLicenseForProductDetails(oSelf, oProductDetails):
     # Return a valid active license for the product or None.
     assert oProductDetails in oSelf.aoProductDetails, \
         "Product %s is not in the license collection!?" % oProductDetails.sProductName;
+    if gbDebugOutput: print "* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails));
     for oLicense in oSelf.aoLicenses:
-      if oLicense.sProductName == oProductDetails.sProductName and not oLicense.fsGetError():
-        return oLicense;
+      if gbDebugOutput: print "  * License: %s %X" % (oLicense.sLicenseId, id(oLicense));
+      if oProductDetails.sProductName not in oLicense.asProductNames:
+        if gbDebugOutput: print "    - product %s" % (oProductDetails.sProductName);
+        continue;
+      oLicenseCheckServer = cLicenseCheckServer(oProductDetails.sLicenseServerURL);
+      sLicenseCheckServerError = oLicense.fsCheckWithServerAndGetError(oLicenseCheckServer);
+      if sLicenseCheckServerError:
+        if gbDebugOutput: print "    - %s" % sLicenseCheckServerError;
+        continue;
+      sLicenseError = oLicense.fsGetError();
+      if sLicenseError:
+        if gbDebugOutput: print "    - %s" % sLicenseError;
+        continue;
+      if gbDebugOutput: print "    + OK";
+      return oLicense;
     assert oProductDetails.bInTrialPeriod, \
         "You cannot have a product without a license that is not in its trial period and reach this code. " \
         "Did you forget to call ftasGetLicenseErrorsAndWarnings first or to terminate when it reported errors?";
