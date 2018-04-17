@@ -40,4 +40,4 @@ if not aoLicenses:
 for oLicense in aoLicenses:
   print "+ %s is licensed to use %s for %s on %d systems until %s with authentication %s" % \
       (oLicense.sLicenseeName, fsToOxfordComma(oLicense.asProductNames), oLicense.sUsageTypeDescription, \
-      oLicense.uLicensedInstances, oLicense.oEndDate, oLicense.sAuthentication);
+      oLicense.uLicensedInstances, oLicense.oEndDate, oLicense.sLicenseId);

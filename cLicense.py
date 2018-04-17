@@ -19,7 +19,7 @@ grLicenseBlock = re.compile("".join([
   r"(",
     r"(?:", r"\| [^\r\n]+ \|", srCRLF, ")+",
   r")",
-  r"'\-+ Authentication: (\w{32}) \-+'", srCRLF,
+  r"'\-+ License id: (\w{32}) \-+'", srCRLF,
 ]));
 grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?) +\|");
 import __main__;
@@ -34,7 +34,7 @@ class cLicense(object):
     for oLicenseBlockMatch in grLicenseBlock.finditer(sLicenseBlocks):
       sLicenseBlock = oLicenseBlockMatch.group(0);
       sLicenseBlockDetails = oLicenseBlockMatch.group(1);
-      sAuthentication = oLicenseBlockMatch.group(2);
+      sLicenseId = oLicenseBlockMatch.group(2);
       dsConstructorArgumentName_by_sExpectedDetailsValueName = {
         "Licensed products": "asProductNames",
         "Licensee": "sLicenseeName",
@@ -46,7 +46,7 @@ class cLicense(object):
       };
       dxConstructorArguments = {
         "sLicenseBlock": sLicenseBlock,
-        "sAuthentication": sAuthentication,
+        "sLicenseId": sLicenseId,
       };
       for oLicenseBlockDetailsLineMatch in grLicenseBlockDetailsLine.finditer(sLicenseBlockDetails):
         (sDetailsValueName, sValue) = oLicenseBlockDetailsLineMatch.groups();
@@ -86,7 +86,7 @@ class cLicense(object):
     oEndDate,
     sLicenseURL,
     sLicenseBlock,
-    sAuthentication,
+    sLicenseId,
   ):
     oSelf.asProductNames = asProductNames;
     oSelf.sLicenseeName = sLicenseeName;
@@ -96,7 +96,7 @@ class cLicense(object):
     oSelf.oEndDate = oEndDate;
     oSelf.sLicenseURL = sLicenseURL;
     oSelf.sLicenseBlock = sLicenseBlock;
-    oSelf.sAuthentication = sAuthentication;
+    oSelf.sLicenseId = sLicenseId;
     
     oSelf.__oLicenseRegistryCache = cLicenseRegistryCache(oSelf);
     oSelf.__oLicenseCheckResult = oSelf.__oLicenseRegistryCache.foGetLicenseCheckResult();
@@ -119,10 +119,10 @@ class cLicense(object):
   def fbRemoveFromRegistry(oSelf):
     return oSelf.__oLicenseRegistryCache.fbRemove();
   
-  def fsCheckWithServerAndGetError(oSelf, oLicenseCheckServer):
+  def fsCheckWithServerAndGetError(oSelf, oLicenseCheckServer, bForceCheck = False):
     # Set bWriteToRegistry to True to disable caching of check results in the registry (e.g. in a system that
     # is used to generate licenses, you do not want to cache them).
-    if oSelf.bNeedsToBeCheckedWithServer:
+    if oSelf.bNeedsToBeCheckedWithServer or bForceCheck:
       oSelf.bNeedsToBeCheckedWithServer = False;
       try:
         oSelf.__oLicenseCheckResult = oLicenseCheckServer.foGetLicenseCheckResult(oSelf);
@@ -173,26 +173,26 @@ class cLicense(object):
     if oSelf.sLicenseCheckServerError:
       return oSelf.sLicenseCheckServerError;
     elif oSelf.bIsExpired:
-      return "Your license for %s with Authentication %s expired on %s." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication, oSelf.oEndDate);
+      return "License %s for %s expired on %s." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oEndDate);
     elif not oSelf.bIsActive:
-      return "Your license for %s with Authentication %s activates on %s." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication, oSelf.oStartDate);
+      return "License %s for %s activates on %s." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oStartDate);
     elif not oSelf.bIsValid:
-      return "Your license for %s with Authentication %s is not valid." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication);
+      return "License %s for %s is not valid." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
     elif not oSelf.bInLicensePeriodAccordingToServer:
-      return "Your license for %s with Authentication %s is not active at this date according to the server." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication);
+      return "License %s for %s is not active at this date according to the server." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
     elif oSelf.sIsRevokedForReason:
-      return "Your license for %s with Authentication %s has been revoked: %s." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication, oSelf.sIsRevokedForReason);
+      return "License %s for %s has been revoked: %s." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.sIsRevokedForReason);
     elif oSelf.bDeactivatedOnSystem:
-      return "Your license for %s with Authentication %s has been deactivated on this system." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication);
+      return "License %s for %s has been deactivated on this system." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
     elif oSelf.bLicenseInstancesExceeded:
-      return "Your license for %s with Authentication %s has exceeded its maximum number of instances." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sAuthentication);
+      return "License %s for %s has exceeded its maximum number of instances." % \
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
     return None;
 
 from .cDate import cDate;
