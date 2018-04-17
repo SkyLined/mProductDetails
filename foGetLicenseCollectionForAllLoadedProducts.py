@@ -16,9 +16,9 @@ def foGetLicenseCollectionForAllLoadedProducts():
 #  if len(aoLicensesFromRegistry) == 0:
 #    print "  - None";
 #  for oLicense in aoLicensesFromRegistry:
-#    print "  * %s for %s" % (oLicense.sAuthentication, "/".join(oLicense.asProductNames));
+#    print "  * %s for %s" % (oLicense.sLicenseId, "/".join(oLicense.asProductNames));
 
-  asAuthenticationsFromRegistry = [oLicense.sAuthentication for oLicense in aoLicensesFromRegistry];
+  asLicenseIdsFromRegistry = [oLicense.sLicenseId for oLicense in aoLicensesFromRegistry];
   # Select only licenses for any of the loaded products:
   aoLoadedProductLicenses = [
     oLicense for oLicense in aoLicensesFromRegistry
@@ -46,13 +46,13 @@ def foGetLicenseCollectionForAllLoadedProducts():
     for oLicenseFromFile in aoLicensesFromFile:
       # Select only licenses for any of the loaded products:
       if not (asLoadedProductNames & set(oLicenseFromFile.asProductNames)):
-#        print "  - %s for %s (products not loaded)" % (oLicenseFromFile.sAuthentication, "/".join(oLicenseFromFile.asProductNames));
+#        print "  - %s for %s (products not loaded)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
         continue;
       # Add only licenses that were not already loaded from the registry:
-      if oLicenseFromFile.sAuthentication in asAuthenticationsFromRegistry:
-#        print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sAuthentication, "/".join(oLicenseFromFile.asProductNames));
+      if oLicenseFromFile.sLicenseId in asLicenseIdsFromRegistry:
+#        print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
         continue;
-#      print "  + %s for %s (new)" % (oLicenseFromFile.sAuthentication, "/".join(oLicenseFromFile.asProductNames));
+#      print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
       aoLoadedProductLicenses.append(oLicenseFromFile);
       if not oLicenseFromFile.fbWriteToRegistry():
         asWarnings.append("The license with id %s for product %s from file %s could not be cached in the registry." % \

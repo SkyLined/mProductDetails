@@ -61,7 +61,7 @@ class cLicenseRegistryCache(object):
     aoLoadedLicenses = [];
     # Each product has its own sub-key under the main registry key
     # Sanity check everything; discard anything that is not as it should be.
-    for (sAuthentication, oLicenseRegistryHiveKey) in oProductLicensesRegistryHiveKey.doSubKey_by_sName.items():
+    for (sLicenseId, oLicenseRegistryHiveKey) in oProductLicensesRegistryHiveKey.doSubKey_by_sName.items():
       oLicenseBlockRegistryValue = oLicenseRegistryHiveKey.foGetNamedValue(sValueName = "sLicenseBlock");
       # Read the license block from the registry and parse it.
       if oLicenseBlockRegistryValue is not None and oLicenseBlockRegistryValue.sTypeName == "REG_SZ":
@@ -70,7 +70,7 @@ class cLicenseRegistryCache(object):
         # The license block should have exactly one license and it should be for the license id it is stored under:
         if (
           len(aoLicenses) == 1
-          and aoLicenses[0].sAuthentication == sAuthentication
+          and aoLicenses[0].sLicenseId == sLicenseId
         ):
           aoLoadedLicenses += aoLicenses;
     return aoLoadedLicenses;
@@ -100,7 +100,7 @@ class cLicenseRegistryCache(object):
     # Open the registry
     oSelf.__oRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = "%s\%s" % (gsProductLicensesKeyPath, oLicense.sAuthentication),
+      sKeyName = "%s\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
     );
   
   def foGetLicenseCheckResult(oSelf):
