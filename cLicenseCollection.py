@@ -31,7 +31,7 @@ class cLicenseCollection(object):
       for oLicense in oSelf.aoLicenses:
         if gbDebugOutput: print "  * License: %s %X" % (oLicense.sLicenseId, id(oLicense));
         if oProductDetails.sProductName not in oLicense.asProductNames:
-          if gbDebugOutput: print "    - for product %s" % (oLicense.sProductName);
+          if gbDebugOutput: print "    - for products %s" % ", ".join(oLicense.asProductNames);
           continue;
         if oLicense.bNeedsToBeCheckedWithServer:
           if gbDebugOutput: print "    * Checking with server...";
