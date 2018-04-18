@@ -8,6 +8,8 @@ sys.path = [sParentFolderPath] + sys.path;
 import mProductDetails;
 from fsToOxfordComma import fsToOxfordComma;
 
+print "Unique system id: " + mProductDetails.fsGetSystemId();
+
 print "Product version information:";
 oMainProductDetails = mProductDetails.foGetProductDetailsForMainModule();
 aoProductDetails = mProductDetails.faoGetProductDetailsForAllLoadedModules();
