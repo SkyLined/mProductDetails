@@ -59,6 +59,10 @@ class cLicenseCollection(object):
             # This product is in its trial period; report all license errors as warnings:
             asProductLicenseWarnings = asProductLicenseErrors + asProductLicenseWarnings;
             asProductLicenseErrors = [];
+            asProductLicenseWarnings.append(
+              "Could not validate the license for %s and your trial period will expire on %s" %
+              (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate)
+            );
         elif not oProductDetails.bHasTrialPeriod:
           # No license found; report an error if the product has no trial period.
           asProductLicenseErrors.append(
