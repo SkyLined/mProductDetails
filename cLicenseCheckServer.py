@@ -17,7 +17,7 @@ class cLicenseCheckServer(object):
         "sLicenseBlock": oLicense.sLicenseBlock,
         "sSystemId": fsGetSystemId(),
       }), 
-      sURLNameInException = "The license check server",
+      sURLNameInException = "The license check server at " + oSelf.sServerURL,
       cException = cLicenseCheckServer.cServerErrorException,
     );
     oJSONServerResponeStructure = cDataStructure(
