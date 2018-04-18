@@ -1,5 +1,5 @@
 
-gbDebugOutput  = False;
+gbDebugOutput = False;
 
 # The imports are at the end to prevent import loops.
 class cLicenseCollection(object):
