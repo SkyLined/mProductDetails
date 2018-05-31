@@ -21,6 +21,7 @@ for oProductDetails in aoProductDetails:
       (oProductDetails.sProductName, oProductDetails.oProductVersion, oProductDetails.sProductAuthor, oProductDetails.sInstallationFolderPath);
 print;
 
+print "Checking licenses for loaded software products:";
 oLicenseCollection = mProductDetails.foGetLicenseCollectionForAllLoadedProducts();
 (asErrors, asWarnings) = oLicenseCollection.ftasGetLicenseErrorsAndWarnings();
 if asErrors:
@@ -35,8 +36,8 @@ if asWarnings:
     print "* " + sWarning;
   print;
 
-aoLicenses = mProductDetails.faoGetLicensesFromRegistry();
 print "Software license information in registry:";
+aoLicenses = mProductDetails.faoGetLicensesFromRegistry();
 if not aoLicenses:
   print "- No licenses loaded";
 for oLicense in aoLicenses:
