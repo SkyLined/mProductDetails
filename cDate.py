@@ -56,7 +56,18 @@ class cDate(datetime.date):
         while uNewMonth > 12:
           oEndDate = oEndDate.replace(year = oEndDate.uYear + 1);
           uNewMonth -= 12;
-        oEndDate = oEndDate.replace(month = uNewMonth);
+        # If we try to go from the 31st of any month to a month that has 30 days or less by replacing only the month,
+        # we would end up on a day that does not exist. Attempting to do so causes a ValueError, in which case we
+        # decrease the day by one and try again. We may need to do this a number of times in case of February. This
+        # gets us a date with the month changed by the desired value and the day adjusted to most closely match the
+        # original value and still be valid.
+        while 1:
+          try:
+            oEndDate = oEndDate.replace(month = uNewMonth);
+          except ValueError:
+            oEndDate = oEndDate.replace(day = oEndDate.uDay - 1);
+          else:
+            break;
       elif sType == "d":
         oEndDate += datetime.timedelta(days = uCount);
       else:
