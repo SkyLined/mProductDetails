@@ -5,7 +5,10 @@ SETLOCAL
 :: Find Python
 IF DEFINED PYTHON (
   CALL :CHECK_PYTHON
-  IF ERRORLEVEL 1 EXIT /B 1
+  IF ERRORLEVEL 1 (
+    ENDLOCAL
+    EXIT /B 1
+  )
 ) ELSE (
   REM Try to detect the location of python automatically
   FOR /F "usebackq delims=" %%I IN (`where "python" 2^>nul`) DO SET PYTHON="%%~I"
@@ -14,13 +17,17 @@ IF DEFINED PYTHON (
     SET PYTHON="%SystemDrive%\Python27\python.exe"
     CALL :CHECK_PYTHON
     IF ERRORLEVEL 1 (
-      ENDLOCAL & EXIT /B 1
+      ENDLOCAL
+      EXIT /B 1
     )
   )
 )
 
 CALL %PYTHON% "%~dpn0\%~n0.py" %*
-ENDLOCAL & EXIT /B %ERRORLEVEL%
+IF ERRORLEVEL 1 GOTO :ERROR
+
+ENDLOCAL
+EXIT /B 0
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Find Python helper
@@ -33,3 +40,8 @@ ENDLOCAL & EXIT /B %ERRORLEVEL%
     EXIT /B 1
   )
   EXIT /B 0
+
+:ERROR
+  ECHO   - Error %ERRORLEVEL%.
+  ENDLOCAL
+  EXIT /B %ERRORLEVEL%
