@@ -26,12 +26,12 @@ def fuUpdate(sMainScriptName, sFeatureName, asArguments, dsArguments):
       if sProductFolderPath is not None:
         print "- Please provide only one product folder path!";
         fUsage(sMainScriptName, sFeatureName);
-        return 1;
+        return 3;
       sProductFolderPath = sValue;
     else:
       print "- Unknown argument --%s!" % sName;
       fUsage(sMainScriptName, sFeatureName);
-      return 1;
+      return 3;
   
   for sArgument in asArguments:
     if sProductFolderPath is None:
@@ -39,22 +39,26 @@ def fuUpdate(sMainScriptName, sFeatureName, asArguments, dsArguments):
     else:
       print "- Superfluous argument %s!" % asArguments[0];
       fUsage(sMainScriptName, sFeatureName);
-      return 1;
+      return 3;
   
   # Check arguments
   if sProductFolderPath is None:
     print "- Please provide a --product argument!";
     fUsage(sMainScriptName, sFeatureName);
-    return 1;
+    return 3;
   
   # Read the product details from the product folder:
   oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
   if not oProductDetails:
     print "- Product details could not be read from %s!" % sProductFolderPath;
-    return 2;
-  oProductDetails.oProductVersion = cVersion.foNew();
+    return 4;
+  oNewProductVersion = cVersion.foNew();
+  if oProductDetails.oProductVersion == oNewProductVersion:
+    print "* Version unchanged (%s)." % oProductDetails.oProductVersion;
+    return 0;
+  oProductDetails.oProductVersion = oNewProductVersion;
   if not oProductDetails.fbWriteToInstallationFolderPath():
     print "- Product details could not be written to %s!" % sProductFolderPath;
-    return 2;
+    return 5;
   print "+ Version updated to %s." % oProductDetails.oProductVersion;
-  return 0;
+  return 1;

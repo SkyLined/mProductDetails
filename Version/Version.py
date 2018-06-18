@@ -33,7 +33,14 @@ def fUsage(sMainScriptName):
   print "";
   print "For more details about a specific feature, use --help, as in:";
   print "  %s <feature> --help" % sMainScriptName;
-
+  print "";
+  print "Exit codes:";
+  print "  0 = executed successfully, no version information updated.";
+  print "  1 = executed successfully, version information updated.";
+  print "  2 = bad arguments.";
+  print "  3 = internal error";
+  print "  4 = cannot read version information";
+  print "  5 = cannot update version information";
 
 def fuMain(sMainScriptName, asArguments):
   if len(asArguments) == 0:
@@ -53,7 +60,7 @@ def fuMain(sMainScriptName, asArguments):
   fuFeatureMain = dFeature_fuMain_by_sName.get(sFeatureName);
   if fuFeatureMain is None:
     print "Unknown feature %s" % sFeatureName;
-    return 1;
+    return 3;
   return fuFeatureMain(sMainScriptName, sFeatureName, asFeatureArguments, dsFeatureArguments);
 
 if __name__ == "__main__":

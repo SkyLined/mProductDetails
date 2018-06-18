@@ -26,12 +26,12 @@ def fuShow(sMainScriptName, sFeatureName, asArguments, dsArguments):
       if sProductFolderPath is not None:
         print "- Please provide only one product folder path!";
         fUsage(sMainScriptName, sFeatureName);
-        return 1;
+        return 3;
       sProductFolderPath = sValue;
     else:
       print "- Unknown argument --%s!" % sName;
       fUsage(sMainScriptName, sFeatureName);
-      return 1;
+      return 3;
   
   for sArgument in asArguments:
     if sProductFolderPath is None:
@@ -39,18 +39,18 @@ def fuShow(sMainScriptName, sFeatureName, asArguments, dsArguments):
     else:
       print "- Superfluous argument %s!" % asArguments[0];
       fUsage(sMainScriptName, sFeatureName);
-      return 1;
+      return 3;
   
   # Check arguments
   if sProductFolderPath is None:
     print "- Please provide a --product argument!";
     fUsage(sMainScriptName, sFeatureName);
-    return 1;
+    return 3;
   
   # Read the product details from the product folder:
   oProductDetails = cProductDetails.foReadForFolderPath(sProductFolderPath);
   if not oProductDetails:
     print "- Product details could not be read from %s!" % sProductFolderPath;
-    return 2;
+    return 4;
   print "+ Version %s." % oProductDetails.oProductVersion;
   return 0;
