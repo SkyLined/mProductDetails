@@ -11,6 +11,8 @@ def fsGetHTTPResponseData(sURL, sPostData, sURLNameInException, cException):
     else:
       oSSLContext = ssl.create_default_context();
       oSSLContext.load_default_certs();
+  else:
+    oSSLContext = None;
   try:
     oHTTPRequest = urllib.urlopen(sURL, sPostData, context = oSSLContext);
   except Exception as oException:
