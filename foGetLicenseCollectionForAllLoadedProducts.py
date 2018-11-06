@@ -59,7 +59,7 @@ def foGetLicenseCollectionForAllLoadedProducts():
         aoLoadedProductLicenses.remove(oLicenseFromRegistry);
         aoLoadedProductLicenses.append(oLicenseFromFile);
         asWarnings.append("The license with id %s has been updated to apply to product %s using file %s." % \
-            (oLicenseFromFile.sLincenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
+            (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
       else:
 #        print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
         bWriteToRegistry = False;
