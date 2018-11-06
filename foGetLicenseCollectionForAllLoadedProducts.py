@@ -18,7 +18,7 @@ def foGetLicenseCollectionForAllLoadedProducts():
 #  for oLicense in aoLicensesFromRegistry:
 #    print "  * %s for %s" % (oLicense.sLicenseId, "/".join(oLicense.asProductNames));
 
-  asLicenseIdsFromRegistry = [oLicense.sLicenseId for oLicense in aoLicensesFromRegistry];
+  doLicenseFromRegistry_by_sId = dict([(oLicense.sLicenseId, oLicense) for oLicense in aoLicensesFromRegistry]);
   # Select only licenses for any of the loaded products:
   aoLoadedProductLicenses = [
     oLicense for oLicense in aoLicensesFromRegistry
@@ -49,12 +49,21 @@ def foGetLicenseCollectionForAllLoadedProducts():
 #        print "  - %s for %s (products not loaded)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
         continue;
       # Add only licenses that were not already loaded from the registry:
-      if oLicenseFromFile.sLicenseId in asLicenseIdsFromRegistry:
+      oLicenseFromRegistry = doLicenseFromRegistry_by_sId.get(oLicenseFromFile.sLicenseId);
+      bWriteToRegistry = True;
+      if oLicenseFromRegistry is None:
+#        print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
+        pass;
+      elif sorted(oLicenseFromFile.asProductNames) != sorted(oLicenseFromRegistry.asProductNames):
+#        print "  + %s for %s (updated product names)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
+        aoLoadedProductLicenses.remove(oLicenseFromRegistry);
+        aoLoadedProductLicenses.append(oLicenseFromFile);
+        asWarnings.append("The license with id %s has been updated to apply to product %s using file %s." % \
+            (oLicenseFromFile.sLincenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
+      else:
 #        print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-        continue;
-#      print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-      aoLoadedProductLicenses.append(oLicenseFromFile);
-      if not oLicenseFromFile.fbWriteToRegistry():
+        bWriteToRegistry = False;
+      if bWriteToRegistry and not oLicenseFromFile.fbWriteToRegistry():
         asWarnings.append("The license with id %s for product %s from file %s could not be cached in the registry." % \
             (oLicenseFromFile.sLincenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
   # For products that have no active, valid license: add all licenses stored in files in the root folder of each product
