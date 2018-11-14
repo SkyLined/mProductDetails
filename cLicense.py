@@ -13,13 +13,14 @@ gdcHashingAlgorithm_by_sName = {
 };
 
 srCRLF = r"[\r\n]+";
+srOptionalCRLF = r"[\r\n]*";
 
 grLicenseBlock = re.compile("".join([
   r"\.\-+ ", re.escape(gsLicenseBlockHeader), " \-+\.", srCRLF,
   r"(",
     r"(?:", r"\| [^\r\n]+ \|", srCRLF, ")+",
   r")",
-  r"'\-+ License id: (\w{32}) \-+'", srCRLF,
+  r"'\-+ License id: (\w{32}) \-+'", srOptionalCRLF,
 ]));
 grLicenseBlockDetailsLine = re.compile(r"\| +(.+?)\.*: (.+?) +\|");
 import __main__;
