@@ -74,7 +74,7 @@ class cDate(datetime.date):
         raise AssertionError("NOT REACHED");  
     return oEndDate;
   
-  def fsToHumanReadbleString(oSelf):
+  def fsToHumanReadableString(oSelf):
     # Month <day>th, <year>
     return "%s %d%s, %d" % (
       gasMonths[oSelf.uMonth],
