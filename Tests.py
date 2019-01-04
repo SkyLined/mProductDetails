@@ -41,6 +41,9 @@ aoLicenses = mProductDetails.faoGetLicensesFromRegistry();
 if not aoLicenses:
   print "- No licenses loaded";
 for oLicense in aoLicenses:
-  print "+ %s is licensed to use %s for %s on %d systems until %s with authentication %s" % \
-      (oLicense.sLicenseeName, fsToOxfordComma(oLicense.asProductNames), oLicense.sUsageTypeDescription, \
-      oLicense.uLicensedInstances, oLicense.oEndDate, oLicense.sLicenseId);
+  print "+ %s licensed to %s:" % (oLicense.asProductNames[0], oLicense.sLicenseeName);
+  print "  Products   : %s" % fsToOxfordComma(oLicense.asProductNames);
+  print "  Usage type : %s" % oLicense.sUsageTypeDescription;
+  print "  Instances  : %s" % oLicense.uLicensedInstances;
+  print "  End date   : %s" % oLicense.oEndDate.fsToHumanReadableString();
+  print "  Id         : %s" % oLicense.sLicenseId;
