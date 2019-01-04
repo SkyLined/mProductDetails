@@ -1,6 +1,7 @@
 import os, sys;
 
-# The imports are at the end to prevent import loops.
+from mDateTime import cDate;
+# The rest of the imports are at the end to prevent import loops.
 
 gsJSONFileName = "dxProductDetails.json";
 
@@ -115,7 +116,7 @@ class cProductDetails(object):
   
   @property
   def bInTrialPeriod(oSelf):
-    return oSelf.oTrialPeriodEndDate and cDate.foNow() <= oSelf.oTrialPeriodEndDate;
+    return oSelf.oTrialPeriodEndDate and not oSelf.oTrialPeriodEndDate.fbIsInThePast();
   
   @property
   def oLatestProductDetailsFromRepository(oSelf):
@@ -169,6 +170,5 @@ goProductDetailsDataStructure = cDataStructure(
   cProductDetails,
 );
 
-from .cDate import cDate;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
 from .foGetLicenseCollectionForAllLoadedProducts import foGetLicenseCollectionForAllLoadedProducts;
