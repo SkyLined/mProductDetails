@@ -121,12 +121,18 @@ class cProductDetails(object):
   @property
   def oLatestProductDetailsFromRepository(oSelf):
     if oSelf.__oLatestProductDetailsFromRepository is None:
-      # In case checking throws an error, set the value to false so we don't try again:
+      # Because the repository can contain a newer version of dxProductDetails.json with changed or added values,
+      # getting the upstream details can fail. In this case we will want to return a non-True value. To prevent us
+      # from trying to parse it again, we will use False to indicate we tried (None is used to indicate we haven't
+      # attempted to parse it yet).
       oSelf.__oLatestProductDetailsFromRepository = False;
-      oSelf.__oLatestProductDetailsFromRepository = cProductDetails.foFromJSONData(
-        sProductDetailsJSONData = oSelf.oRepository.sLatestProductDetailsJSONData,
-        sDataNameInError = "latest product details JSON file from repository",
-      );
+      try:
+        oSelf.__oLatestProductDetailsFromRepository = cProductDetails.foFromJSONData(
+          sProductDetailsJSONData = oSelf.oRepository.sLatestProductDetailsJSONData,
+          sDataNameInError = "latest product details JSON file from repository",
+        );
+      except:
+        pass;
     return oSelf.__oLatestProductDetailsFromRepository;
 
   @property
