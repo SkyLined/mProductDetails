@@ -52,12 +52,13 @@ def fxConvertFromJSONData(xStructureDetails, xJSONData, sDataNameInError, sBaseP
     return xStructureDetails.fxConvertFromJSONData(xJSONData, sDataNameInError, sBasePath);
   elif xStructureDetails.__class__ == tuple:
     # A tuple means a list of possible structures; try each until we find one that works:
+    asSyntaxErrorMessages = [];
     for xPossibleStructure in xStructureDetails:
       try:
         return fxConvertFromJSONData(xPossibleStructure, xJSONData, sDataNameInError, sBasePath);
       except cDataStructure.cJSONSyntaxErrorException, oSyntaxException:
-        pass;
-    raise cDataStructure.cJSONSyntaxErrorException("%s should have a valid value, not %s" % (sDataNameInError, repr(xJSONData)));
+        asSyntaxErrorMessages.append(oSyntaxException.sMessage);
+    raise cDataStructure.cJSONSyntaxErrorException("%s should have a valid value, not %s (%s)" % (sDataNameInError, repr(xJSONData), ", ".join(asSyntaxErrorMessages)));
   elif xStructureDetails.__class__ == dict:
     if xJSONData.__class__ != dict:
       raise cDataStructure.cJSONSyntaxErrorException("%s should contain a dictionary, not %s" % (sDataNameInError, repr(xJSONData)));
