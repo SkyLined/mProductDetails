@@ -32,7 +32,7 @@ class cProductDetails(object):
     
     # Load and return product details
     sJSONFilePath = os.path.join(sProductFolderPath, gsJSONFileName);
-    if not os.path.isfile(sJSONFilePath): # This module has a product details JSON file.
+    if not os.path.isfile(sJSONFilePath): # This module has no product details JSON file.
       return None;
     oJSONFile = open(sJSONFilePath, "rb");
     try:
@@ -112,7 +112,7 @@ class cProductDetails(object):
       return None;
     # Find out when the application was first run and when the trial period will end.
     oFirstRunDate = cLicenseRegistryCache.foGetOrSetFirstRunDate(oSelf.sProductName);
-    return oFirstRunDate.foEndDateForDuration(oSelf.oTrialPeriodDuration);
+    return oFirstRunDate.foGetEndDateForDuration(oSelf.oTrialPeriodDuration);
   
   @property
   def bInTrialPeriod(oSelf):
