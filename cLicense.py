@@ -1,5 +1,6 @@
 import hashlib, hmac, re;
 
+from mDateTime import cDate;
 from .cErrorException import cErrorException;
 from .fsToOxfordComma import fsToOxfordComma;
 from .fasFromOxfordComma import fasFromOxfordComma;
@@ -68,8 +69,9 @@ class cLicense(object):
         else:
           assert sConstructorArgumentName[0] == "o" and sConstructorArgumentName.endswith("Date"), \
               "Unrecognized constructor argument type %s" % sConstructorArgumentName;
-          xValue = cDate.foFromString(sValue);
-          if xValue is None:
+          try:
+            xValue = cDate.foFromString(sValue);
+          except:
             raise cLicense.cSyntaxErrorException("The license contains an invalid value %s=%s, which is not a date" % (sDetailsValueName, sValue));
         dxConstructorArguments[sConstructorArgumentName] = xValue;
         del dsConstructorArgumentName_by_sExpectedDetailsValueName[sDetailsValueName];
@@ -103,19 +105,19 @@ class cLicense(object):
     oSelf.__oLicenseCheckResult = oSelf.__oLicenseRegistryCache.foGetLicenseCheckResult();
     oSelf.bNeedsToBeCheckedWithServer = (
       oSelf.__oLicenseCheckResult is None
-      or oSelf.__oLicenseCheckResult.oNextCheckWithServerDate <= cDate.foNow()
+      or not oSelf.__oLicenseCheckResult.oNextCheckWithServerDate.fbIsInTheFuture()
     );
     oSelf.sLicenseCheckServerError = None;
   
   @property
   def bIsActive(oSelf):
-    oToday = cDate.foNow();
-    return oSelf.oStartDate <= oToday and oSelf.oEndDate >= oToday;
+    return not oSelf.oStartDate.fbIsInTheFuture() and not oSelf.bIsExpired;
+      
+    return ;
   
   @property
   def bIsExpired(oSelf):
-    oToday = cDate.foNow();
-    return oSelf.oEndDate and oSelf.oEndDate < oToday;
+    return oSelf.oEndDate is not None and oSelf.oEndDate.fbIsInThePast();
   
   def fbRemoveFromRegistry(oSelf):
     return oSelf.__oLicenseRegistryCache.fbRemove();
@@ -175,10 +177,10 @@ class cLicense(object):
       return oSelf.sLicenseCheckServerError;
     elif oSelf.bIsExpired:
       return "License %s for %s expired on %s." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oEndDate);
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oEndDate.fsToHumanReadableString());
     elif not oSelf.bIsActive:
       return "License %s for %s activates on %s." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oStartDate);
+          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oStartDate.fsToHumanReadableString());
     elif not oSelf.bIsValid:
       return "License %s for %s is not valid." % \
           (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
@@ -196,7 +198,6 @@ class cLicense(object):
           (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
     return None;
 
-from .cDate import cDate;
 from .cLicenseCheckServer import cLicenseCheckServer;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
 from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;

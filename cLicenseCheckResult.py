@@ -1,5 +1,3 @@
-from .cDate import cDate;
-
 class cLicenseCheckResult(object):
   def __init__(oSelf, xUnused = None,
     bLicenseIsValid = None,

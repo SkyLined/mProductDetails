@@ -59,7 +59,7 @@ class cProductDetails(object):
     oProductVersion,
     sProductAuthor,
     sProductURL,
-    sTrialPeriodDuration,
+    oTrialPeriodDuration,
     sLicenseServerURL,
     oRepository,
     asDependentOnProductNames,
@@ -68,7 +68,7 @@ class cProductDetails(object):
     oSelf.oProductVersion = oProductVersion;
     oSelf.sProductAuthor = sProductAuthor;
     oSelf.sProductURL = sProductURL;
-    oSelf.sTrialPeriodDuration = sTrialPeriodDuration;
+    oSelf.oTrialPeriodDuration = oTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
     oSelf.oRepository = oRepository;
     oSelf.asDependentOnProductNames = asDependentOnProductNames;
@@ -103,7 +103,7 @@ class cProductDetails(object):
   
   @property
   def bHasTrialPeriod(oSelf):
-    return oSelf.sTrialPeriodDuration is not None;
+    return oSelf.oTrialPeriodDuration is not None;
   
   @property
   def oTrialPeriodEndDate(oSelf):
@@ -111,7 +111,7 @@ class cProductDetails(object):
       return None;
     # Find out when the application was first run and when the trial period will end.
     oFirstRunDate = cLicenseRegistryCache.foGetOrSetFirstRunDate(oSelf.sProductName);
-    return oFirstRunDate.foEndDateForDuration(oSelf.sTrialPeriodDuration);
+    return oFirstRunDate.foEndDateForDuration(oSelf.oTrialPeriodDuration);
   
   @property
   def bInTrialPeriod(oSelf):
@@ -148,7 +148,7 @@ goProductDetailsDataStructure = cDataStructure(
     "oProductVersion": "version",
     "sProductAuthor": "string", 
     "sProductURL": "string", 
-    "sTrialPeriodDuration": ("string", None),
+    "oTrialPeriodDuration": ("duration", None),
     "sLicenseServerURL": "string",
     "oRepository": (
       cDataStructure(

@@ -1,6 +1,6 @@
 import json, os;
 
-from .cDate import cDate;
+from mDateTime import cDate, cDateDuration;
 from .cErrorException import cErrorException;
 from .cVersion import cVersion;
 
@@ -118,10 +118,15 @@ def fxConvertFromJSONData(xStructureDetails, xJSONData, sDataNameInError, sBaseP
       raise cDataStructure.cJSONSyntaxErrorException("%s should contain a string, not %s" % (sDataNameInError, repr(xJSONData)));
     return str(os.path.join(sBasePath or "", xJSONData));
   elif xStructureDetails == "date":
-    oDate = xJSONData.__class__ in [str, unicode] and cDate.foFromString(xJSONData);
-    if not oDate:
+    if xJSONData.__class__ not in [str, unicode]:
       raise cDataStructure.cJSONSyntaxErrorException("%s should contain a date string, not %s" % (sDataNameInError, repr(xJSONData)));
+    oDate = cDate.foFromJSON(xJSONData);
     return oDate;
+  elif xStructureDetails == "duration":
+    if xJSONData.__class__ not in [str, unicode]:
+      raise cDataStructure.cJSONSyntaxErrorException("%s should contain a duration string, not %s" % (sDataNameInError, repr(xJSONData)));
+    oDateDuration = cDateDuration.foFromJSON(xJSONData);
+    return oDateDuration;
   elif xStructureDetails == "version":
     oVersion = xJSONData.__class__ in [str, unicode] and cVersion.foFromString(xJSONData);
     if not oVersion:
@@ -187,9 +192,13 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
       raise cDataStructure.cDataErrorException("%s should contain a string, not %s" % (sDataNameInError, repr(xData)));
     return str(os.path.relpath(xData, sBasePath or ""));
   elif xStructureDetails == "date":
-    if xData.__class__ != cData:
+    if xData.__class__ != cDate:
       raise cDataStructure.cDataErrorException("%s should contain a date, not %s" % (sDataNameInError, repr(xData)));
-    return str(xData);
+    return xData.fxToJSON();
+  elif xStructureDetails == "duration":
+    if xData.__class__ != cDateDuration:
+      raise cDataStructure.cDataErrorException("%s should contain a duration, not %s" % (sDataNameInError, repr(xData)));
+    return xData.fxToJSON();
   elif xStructureDetails == "version":
     if xData.__class__ != cVersion:
       raise cDataStructure.cDataErrorException("%s should contain a version, not %s" % (sDataNameInError, repr(xData)));

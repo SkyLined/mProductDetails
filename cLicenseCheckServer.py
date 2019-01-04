@@ -54,7 +54,6 @@ class cLicenseCheckServer(object):
     raise cLicenseCheckServer.cServerErrorException(sError);
 
 from .cDataStructure import cDataStructure;
-from .cDate import cDate;
 from .cLicenseCheckResult import cLicenseCheckResult;
 from .fsGetHTTPResponseData import fsGetHTTPResponseData;
 from .fsGetSystemId import fsGetSystemId;

@@ -1,3 +1,4 @@
+from mDateTime import cDate, cDateDuration;
 
 gbDebugOutput = False;
 
@@ -48,10 +49,10 @@ class cLicenseCollection(object):
         if gbDebugOutput: print "    + OK";
         # This license is valid
         bFoundValidLicense = True;
-        # warn if license will expire in one month or less.
-        if cDate.foNow().foEndDateForDuration("1m") > oLicense.oEndDate:
+        # warn if license will expire in less than one month.
+        if cDate.foNow().foGetEndDateForDuration(cDateDuration.foFromString("1m")).fbIsAfter(oLicense.oEndDate):
           asProductLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
-              (oProductDetails.sProductName, oLicense.sLicenseId, oLicense.oEndDate));
+              (oProductDetails.sProductName, oLicense.sLicenseId, oLicense.oEndDate.fsToHumanReadableString()));
       if not bFoundValidLicense:
         if asProductLicenseErrors:
           # No valid license found; report the errors for the licenses
@@ -61,7 +62,7 @@ class cLicenseCollection(object):
             asProductLicenseErrors = [];
             asProductLicenseWarnings.append(
               "Could not validate the license for %s and your trial period will expire on %s" %
-              (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate)
+              (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate.fsToHumanReadableString())
             );
         elif not oProductDetails.bHasTrialPeriod:
           # No license found; report an error if the product has no trial period.
@@ -72,13 +73,13 @@ class cLicenseCollection(object):
           # No license found; report a warning if in the trial period.
           asProductLicenseWarnings.append(
             "You have no license for %s and your trial period will expire on %s" %
-            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate)
+            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate.fsToHumanReadableString())
           );
         else:
           # No license found; report an error if the trial period has expired.
           asProductLicenseErrors.append(
             "You have no license for %s and your trial period expired on %s" %
-            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate)
+            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate.fsToHumanReadableString())
           );
         asLicenseErrors += asProductLicenseErrors;
         asLicenseWarnings += asProductLicenseWarnings;
@@ -115,6 +116,5 @@ class cLicenseCollection(object):
   def sLicenseBlocks(oSelf):
     return "\r\n".join([oLicense.sLicenseBlock for oLicense in oSelf.aoLicenses]);
 
-from .cDate import cDate;
 from .cLicense import cLicense;
 from .cLicenseCheckServer import cLicenseCheckServer;

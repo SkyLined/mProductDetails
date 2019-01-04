@@ -1,4 +1,5 @@
-# The imports are at the end to prevent import loops.
+from mDateTime import cDate;
+# The rest of the imports are at the end to prevent import loops.
 
 gsProductLicensesKeyPath = "Software\SkyLined\Licenses";
 gsProductFirstRunKeyPath = "Software\SkyLined\FirstRunDate";
@@ -7,20 +8,20 @@ gsProductFirstRunKeyPath = "Software\SkyLined\FirstRunDate";
 
 # Create some convenience functions for getting values:
 def fsGetStringValue(oRegistryHiveKey, sValueName):
-  oDateRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
-  if oDateRegistryValue is None or oDateRegistryValue.sTypeName != "REG_SZ":
+  oRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
+  if oRegistryValue is None or oRegistryValue.sTypeName != "REG_SZ":
     return None;
-  return oDateRegistryValue.xValue;
+  return oRegistryValue.xValue;
 def fbGetBooleanValue(oRegistryHiveKey, sValueName):
   oRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
   if oRegistryValue is None or oRegistryValue.sTypeName != "REG_DWORD":
     return None;
   return {0: False, 1: True}[oRegistryValue.xValue];
 def foGetDateValue(oRegistryHiveKey, sValueName):
-  oDateRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
-  if oDateRegistryValue is None or oDateRegistryValue.sTypeName != "REG_SZ":
+  oRegistryValue = oRegistryHiveKey.foGetNamedValue(sValueName);
+  if oRegistryValue is None or oRegistryValue.sTypeName != "REG_SZ":
     return None;
-  return cDate.foFromString(oDateRegistryValue.xValue);
+  return cDate.foFromString(oRegistryValue.xValue);
 # Create some convenience functions for setting values:
 def fbSetStringValue(oRegistryHiveKey, sValueName, sValue):
   bResult = oRegistryHiveKey.foSetNamedValue(
@@ -44,7 +45,7 @@ def fbSetDateValue(oRegistryHiveKey, sValueName, oValue):
   bResult = oRegistryHiveKey.foSetNamedValue(
     sValueName = sValueName, 
     sTypeName = "REG_SZ",
-    xValue = str(oValue),
+    xValue = oValue.fsToString(),
   ) is not None;
   if not bResult:
     print "Cannot write %s = %s to registry" % (sValueName, repr(oValue));
@@ -175,7 +176,6 @@ class cLicenseRegistryCache(object):
   def fbRemove(oSelf):
     return oSelf.__oRegistryHiveKey.fbDelete();
   
-from .cDate import cDate;
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
 from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue, cRegistryValue;
