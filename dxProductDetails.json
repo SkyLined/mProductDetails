@@ -2,16 +2,16 @@
   "asDependentOnProductNames": [
     "mWindowsAPI"
   ], 
-  "oProductVersion": "2018-11-20 16:53", 
+  "oProductVersion": "2019-01-04 15:07", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "mProductDetails", 
     "sType": "GitHub", 
     "sUserName": "SkyLined"
   }, 
+  "oTrialPeriodDuration": "1m", 
   "sLicenseServerURL": "https://license.skylined.nl/License_dxCheck.php", 
   "sProductAuthor": "SkyLined", 
   "sProductName": "mProductDetails", 
-  "sProductURL": "https://github.com/SkyLined/mProductDetails", 
-  "oTrialPeriodDuration": "1m"
+  "sProductURL": "https://github.com/SkyLined/mProductDetails"
 }
