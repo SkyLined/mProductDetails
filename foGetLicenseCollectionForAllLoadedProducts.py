@@ -55,8 +55,11 @@ def foGetLicenseCollectionForAllLoadedProducts():
         if gbShowDebugOutput: print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
         pass;
       elif sorted(oLicenseFromFile.asProductNames) != sorted(oLicenseFromRegistry.asProductNames):
-        aoLoadedProductLicenses.remove(oLicenseFromRegistry);
         if gbShowDebugOutput: print "  + %s for %s (updated product names)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
+        # We may load the same license from file twice, but we can only remove it once:
+        if oLicenseFromRegistry in aoLoadedProductLicenses:
+          aoLoadedProductLicenses.remove(oLicenseFromRegistry);
+        # We may be appending the same license twice here, but that should not have any negative effect on licensing.
         aoLoadedProductLicenses.append(oLicenseFromFile);
         asWarnings.append("The license with id %s has been updated to apply to product %s using file %s." % \
             (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
