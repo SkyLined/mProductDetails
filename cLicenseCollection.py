@@ -107,9 +107,10 @@ class cLicenseCollection(object):
         continue;
       if gbDebugOutput: print "    + OK";
       return oLicense;
-    assert oProductDetails.bInTrialPeriod, \
-        "You cannot have a product without a license that is not in its trial period and reach this code. " \
-        "Did you forget to call ftasGetLicenseErrorsAndWarnings first or to terminate when it reported errors?";
+# ...actually you can if want to know if the product has a license:
+#    assert oProductDetails.bInTrialPeriod, \
+#        "You cannot have a product without a license that is not in its trial period and reach this code. " \
+#        "Did you forget to call ftasGetLicenseErrorsAndWarnings first or to terminate when it reported errors?";
     return None;
   
   @property
