@@ -1,6 +1,6 @@
 import hashlib, hmac, re;
 
-from mDateTime import cDate;
+from mDateTime import cDate, cDateDuration;
 from .cErrorException import cErrorException;
 from .fsToOxfordComma import fsToOxfordComma;
 from .fasFromOxfordComma import fasFromOxfordComma;
@@ -207,12 +207,12 @@ class cLicense(object):
   def fasGetWarnings(oSelf):
     asLicenseWarnings = [];
     # warn if license will expire in less than one month.
-    if cDate.foNow().foGetEndDateForDuration(cDateDuration.foFromString("1m")).fbIsAfter(oLicense.oEndDate):
+    if cDate.foNow().foGetEndDateForDuration(cDateDuration.foFromString("1m")).fbIsAfter(oSelf.oEndDate):
       asLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
-          (fsToOxfordCommaoLicense.asProductNames), oLicense.sLicenseId, oLicense.oEndDate.fsToHumanReadableString()));
+          (fsToOxfordComma(oSelf.asProductNames), oSelf.sLicenseId, oSelf.oEndDate.fsToHumanReadableString()));
     if oSelf.bMayNeedToBeUpdated:
       asLicenseWarnings.append("Your license for %s with id %s may need to be updated." % \
-          (fsToOxfordComma(oLicense.asProductNames), oLicense.sLicenseId));
+          (fsToOxfordComma(oSelf.asProductNames), oSelf.sLicenseId));
     return asLicenseWarnings;
 
 from .cLicenseCheckServer import cLicenseCheckServer;
