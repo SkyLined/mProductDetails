@@ -148,8 +148,6 @@ class cLicense(object):
   
   @property
   def bMayNeedToBeUpdated(oSelf):
-    assert not oSelf.bNeedsToBeCheckedWithServer, \
-        "You need to call fsCheckWithServerAndReturnErrors successfully before reading bIsValid";
     return oSelf.__oLicenseCheckResult.bLicenseMayNeedToBeUpdated;
   
   @property
