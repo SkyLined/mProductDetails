@@ -1,5 +1,3 @@
-from mDateTime import cDate, cDateDuration;
-
 gbDebugOutput = False;
 
 # The imports are at the end to prevent import loops.
