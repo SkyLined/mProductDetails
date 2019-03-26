@@ -147,6 +147,12 @@ class cLicense(object):
     return oSelf.__oLicenseCheckResult.bLicenseIsValid;
   
   @property
+  def bMayNeedToBeUpdated(oSelf):
+    assert not oSelf.bNeedsToBeCheckedWithServer, \
+        "You need to call fsCheckWithServerAndReturnErrors successfully before reading bIsValid";
+    return oSelf.__oLicenseCheckResult.bLicenseMayNeedToBeUpdated;
+  
+  @property
   def bInLicensePeriodAccordingToServer(oSelf):
     assert not oSelf.bNeedsToBeCheckedWithServer, \
         "You need to call fsCheckWithServerAndReturnErrors successfully before reading bInLicensePeriodAccordingToServer";
@@ -197,6 +203,17 @@ class cLicense(object):
       return "License %s for %s has exceeded its maximum number of instances." % \
           (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
     return None;
+
+  def fasGetWarnings(oSelf):
+    asLicenseWarnings = [];
+    # warn if license will expire in less than one month.
+    if cDate.foNow().foGetEndDateForDuration(cDateDuration.foFromString("1m")).fbIsAfter(oLicense.oEndDate):
+      asLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
+          (fsToOxfordCommaoLicense.asProductNames), oLicense.sLicenseId, oLicense.oEndDate.fsToHumanReadableString()));
+    if oSelf.bMayNeedToBeUpdated:
+      asLicenseWarnings.append("Your license for %s with id %s may need to be updated." % \
+          (fsToOxfordComma(oLicense.asProductNames), oLicense.sLicenseId));
+    return asLicenseWarnings;
 
 from .cLicenseCheckServer import cLicenseCheckServer;
 from .cLicenseRegistryCache import cLicenseRegistryCache;

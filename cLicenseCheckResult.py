@@ -1,6 +1,7 @@
 class cLicenseCheckResult(object):
   def __init__(oSelf, xUnused = None,
     bLicenseIsValid = None,
+    bLicenseMayNeedToBeUpdated = None,
     bInLicensePeriod = None,
     sLicenseIsRevokedForReason = None,
     bDeactivatedOnSystem = None,
@@ -24,6 +25,7 @@ class cLicenseCheckResult(object):
           "You must provide an ASCII string value for sLicenseIsRevokedForReason, not %s" % repr(sLicenseIsRevokedForReason)
         );
     oSelf.bLicenseIsValid = bLicenseIsValid;
+    oSelf.bLicenseMayNeedToBeUpdated = bLicenseMayNeedToBeUpdated;
     oSelf.bInLicensePeriod = bInLicensePeriod;
     oSelf.sLicenseIsRevokedForReason = sLicenseIsRevokedForReason;
     oSelf.bDeactivatedOnSystem = bDeactivatedOnSystem;
@@ -42,6 +44,8 @@ class cLicenseCheckResult(object):
           "You cannot provide a value for bDeactivatedOnSystem when bLicenseIsValid == False";
       assert bLicenseInstancesExceeded is None, \
           "You cannot provide a value for bLicenseInstancesExceeded when bLicenseIsValid == False";
+      assert bLicenseMayNeedToBeUpdated is not None, \
+          "You must provide a value for bLicenseMayNeedToBeUpdated when bLicenseIsValid == False";
       return;
     # bInLicensePeriod
     assert isinstance(bInLicensePeriod, bool), \

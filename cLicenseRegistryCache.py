@@ -109,6 +109,9 @@ class cLicenseRegistryCache(object):
     bLicenseIsValid = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid");
     if bLicenseIsValid is None:
       return None;
+    bLicenseMayNeedToBeUpdated = fbGetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseMayNeedToBeUpdated");
+    if bLicenseMayNeedToBeUpdated is None:
+      bLicenseMayNeedToBeUpdated = True; # Apparently this is an older license that does not have this value.
     bInLicensePeriod = None;
     sLicenseIsRevokedForReason = None;
     bDeactivatedOnSystem = None;
@@ -133,6 +136,7 @@ class cLicenseRegistryCache(object):
     
     return cLicenseCheckResult(
       bLicenseIsValid = bLicenseIsValid,
+      bLicenseMayNeedToBeUpdated = bLicenseMayNeedToBeUpdated,
       bInLicensePeriod = bInLicensePeriod,
       sLicenseIsRevokedForReason = sLicenseIsRevokedForReason,
       bDeactivatedOnSystem = bDeactivatedOnSystem,
@@ -150,6 +154,8 @@ class cLicenseRegistryCache(object):
   def fbSetLicenseCheckResult(oSelf, oLicenseCheckResult):
     # Write the values, return False if one fails.
     if not fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseIsValid", oLicenseCheckResult.bLicenseIsValid):
+      return False;
+    if not fbSetBooleanValue(oSelf.__oRegistryHiveKey, "bLicenseMayNeedToBeUpdated", oLicenseCheckResult.bLicenseMayNeedToBeUpdated):
       return False;
     if not oLicenseCheckResult.bLicenseIsValid:
       return True;

@@ -28,6 +28,7 @@ class cLicenseCheckServer(object):
         cDataStructure(
           { # ... or a result.
             "bLicenseIsValid": "boolean",
+            "bLicenseMayNeedToBeUpdated": ("boolean", None),
             "bInLicensePeriod": ("boolean", None),
             "sLicenseIsRevokedForReason": ("string", None),
             "bDeactivatedOnSystem": ("boolean", None),
