@@ -148,7 +148,7 @@ class cLicense(object):
   
   @property
   def bMayNeedToBeUpdated(oSelf):
-    return oSelf.__oLicenseCheckResult.bLicenseMayNeedToBeUpdated;
+    return oSelf.__oLicenseCheckResult and oSelf.__oLicenseCheckResult.bLicenseMayNeedToBeUpdated;
   
   @property
   def bInLicensePeriodAccordingToServer(oSelf):
