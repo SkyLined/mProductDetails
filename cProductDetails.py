@@ -103,6 +103,10 @@ class cProductDetails(object):
     return oSelf.__oLicense;
   
   @property
+  def bRequiresLicense(oSelf):
+    return oSelf.sLicenseServerURL is not None;
+  
+  @property
   def bHasTrialPeriod(oSelf):
     return oSelf.oTrialPeriodDuration is not None;
   
