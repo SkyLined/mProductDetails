@@ -1,7 +1,8 @@
 import os, sys;
 
 # Augment the search path: pretend we are in the parent folder so we can load mProductDetails as a module:
-sMainFolderPath = os.path.abspath(os.path.dirname(__file__));
+sTestsFolderPath = os.path.abspath(os.path.dirname(__file__));
+sMainFolderPath = os.path.abspath(os.path.dirname(sTestsFolderPath));
 sParentFolderPath = os.path.normpath(os.path.join(sMainFolderPath, ".."));
 sys.path = [sParentFolderPath] + sys.path;
 

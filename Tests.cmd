@@ -5,7 +5,7 @@ IF ERRORLEVEL 1 (
   EXIT /B 1
 )
 
-CALL PYTHON "%~dpn0.py" %*
+CALL PYTHON "%~dpn0\%~n0.py" %*
 IF ERRORLEVEL 1 (
   ECHO - Error %ERRORLEVEL%!
 )
