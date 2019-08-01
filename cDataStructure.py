@@ -181,6 +181,10 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
     if xData.__class__ not in [str, unicode]:
       raise cDataStructure.cDataErrorException("%s should contain a string, not %s" % (sDataNameInError, repr(xData)));
     return str(xData);
+  elif xStructureDetails == None:
+    if xData is not None:
+      raise cDataStructure.cDataErrorException("%s should have no value, not %s" % (sDataNameInError, repr(xData)));
+    return None;
   elif xStructureDetails.startswith("string:"):
     if xData.__class__ not in [str, unicode]:
       raise cDataStructure.cDataErrorException("%s should contain a string, not %s" % (sDataNameInError, repr(xData)));
@@ -204,8 +208,4 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
     if xData.__class__ != cVersion:
       raise cDataStructure.cDataErrorException("%s should contain a version, not %s" % (sDataNameInError, repr(xData)));
     return str(xData);
-  elif xStructureDetails == None:
-    if xData is not None:
-      raise cDataStructure.cDataErrorException("%s should have no value, not %s" % (sDataNameInError, repr(xData)));
-    return None;
   raise AssertionError("Unhandled structure type %s" % repr(xStructureDetails));
