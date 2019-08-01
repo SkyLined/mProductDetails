@@ -79,6 +79,9 @@ class cProductDetails(object):
     oSelf.__oLatestProductDetailsFromRepository = None;
     oSelf.__bCheckedWithServer = False;
   
+  def __repr__(oSelf):
+    return "<cProductDetails for %s version %s @%X>" % (oSelf.sProductName, oSelf.oProductVersion, id(oSelf));
+  
   def fbWriteToInstallationFolderPath(oSelf):
     sProductDetailsJSONData = goProductDetailsDataStructure.fsStringify(
       oData = oSelf,
