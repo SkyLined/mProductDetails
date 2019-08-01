@@ -19,10 +19,16 @@ class cLicenseCollection(object):
       (oProductDetails.sProductName, oProductDetails)
       for oProductDetails in oSelf.aoProductDetails
     ]);
-    oLicenseCheckServer = cLicenseCheckServer(oProductDetails.sLicenseServerURL);
     asLicenseErrors = oSelf.asLoadErrors[:];
     asLicenseWarnings = oSelf.asLoadWarnings[:];
+    doLicenseCheckServer_by_sURL = {};
     for oProductDetails in oSelf.aoProductDetails:
+      if not oProductDetails.sLicenseServerURL:
+        continue; # No license required.
+      oLicenseCheckServer = doLicenseCheckServer_by_sURL.get(oProductDetails.sLicenseServerURL);
+      if not oLicenseCheckServer:
+        oLicenseCheckServer = doLicenseCheckServer_by_sURL[oProductDetails.sLicenseServerURL] = \
+            cLicenseCheckServer(oProductDetails.sLicenseServerURL);
       if gbDebugOutput: print "* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails));
       bFoundValidLicense = False;
       asProductLicensesErrors = [];

@@ -156,7 +156,7 @@ goProductDetailsDataStructure = cDataStructure(
     "sProductAuthor": "string", 
     "sProductURL": "string", 
     "oTrialPeriodDuration": ("duration", None),
-    "sLicenseServerURL": "string",
+    "sLicenseServerURL": ("string", None),
     "oRepository": (
       cDataStructure(
         {
