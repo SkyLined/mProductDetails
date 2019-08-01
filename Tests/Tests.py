@@ -7,12 +7,12 @@ sParentFolderPath = os.path.normpath(os.path.join(sMainFolderPath, ".."));
 sys.path = [sParentFolderPath] + sys.path;
 
 import mProductDetails;
-from fsToOxfordComma import fsToOxfordComma;
+from mProductDetails.fsToOxfordComma import fsToOxfordComma;
 
 print "Unique system id: " + mProductDetails.fsGetSystemId();
 
 print "Product version information:";
-oMainProductDetails = mProductDetails.foGetProductDetailsForMainModule();
+oMainProductDetails = mProductDetails.foGetProductDetailsForModule(mProductDetails);
 aoProductDetails = mProductDetails.faoGetProductDetailsForAllLoadedModules();
 # Change order to put main product at the front:
 aoProductDetails.remove(oMainProductDetails);
