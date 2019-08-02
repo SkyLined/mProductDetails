@@ -127,6 +127,7 @@ class cProductDetails(object):
   
   @property
   def oLatestProductDetailsFromRepository(oSelf):
+    if oSelf.oRepository is None: return None;
     if oSelf.__oLatestProductDetailsFromRepository is None:
       # Because the repository can contain a newer version of dxProductDetails.json with changed or added values,
       # getting the upstream details can fail. In this case we will want to return a non-True value. To prevent us
@@ -161,7 +162,7 @@ goProductDetailsDataStructure = cDataStructure(
     "sProductName": "string", 
     "oProductVersion": "version",
     "sProductAuthor": "string", 
-    "sProductURL": "string", 
+    "sProductURL": ("string", None), 
     "oTrialPeriodDuration": ("duration", None),
     "sLicenseServerURL": ("string", None),
     "oRepository": (
@@ -174,7 +175,7 @@ goProductDetailsDataStructure = cDataStructure(
         },
         cGitHubRepository,
       ),
-      # There are currently no other options
+      None # No repository
     ),
     "asDependentOnProductNames": [
       "string",
