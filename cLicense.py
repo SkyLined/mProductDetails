@@ -215,4 +215,4 @@ class cLicense(object):
 
 from .cLicenseCheckServer import cLicenseCheckServer;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
-from mWindowsAPI.mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;
+from mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;

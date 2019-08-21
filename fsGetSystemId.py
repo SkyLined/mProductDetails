@@ -1,5 +1,15 @@
 import hashlib, os, uuid;
-from mWindowsAPI import oSystemInfo;
+from mRegistry import cRegistryValue;
+
+def fsHKLMValue(sKeyName, sValueName):
+  oRegistryValue = cRegistryValue.foGet(sHiveName = "HKLM", sKeyName = sKeyName, sValueName = sValueName);
+  if not oRegistryValue:
+    oRegistryValue = cRegistryValue.foGet(sHiveName = "HKLM", sKeyName = sKeyName, sValueName = sValueName, uRegistryBits = 64);
+    assert oRegistryValue, \
+        "Cannot read HKLM\%s\%s" % (sKeyName, sValueName);
+  assert oRegistryValue.sTypeName == "REG_SZ", \
+      r"Expected HKLM\%s\%s to be REG_SZ, got %s" % (sKeyName, sValueName, oRegistryValue.sTypeName);
+  return oRegistryValue.xValue;
 
 # Generate a unique system id. We want this to be a value that is unique to this machine and user account. The server
 # uses these ids to track the different machines and user accounts that the product has been actived on in order to
@@ -31,9 +41,9 @@ if (uMAC & 0x030000000000):
   uMAC = 0;
 
 asUniqueValues = [
-  oSystemInfo.sUniqueSystemId,  # Windows installation id gathered from the registry
+  fsHKLMValue(r"SOFTWARE\Microsoft\Cryptography", "MachineGuid"),  # Windows installation id gathered from the registry
   "%X" % uMAC,                  # MAC address gather from one of the network interfaces.
-  oSystemInfo.sSystemName,      # Machine name gathered from the registry
+  fsHKLMValue(r"SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName", "ComputerName"), # Machine name gathered from the registry
   os.getenv("USERNAME"),        # User name gathered from the environment.
 ];
 
