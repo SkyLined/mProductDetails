@@ -1,9 +1,9 @@
 [submodule "modules/mDateTime"]
 	path = modules/mDateTime
 	url = https://github.com/SkyLined/mDateTime/
-[submodule "modules/mWindowsAPI"]
-	path = modules/mWindowsAPI
-	url = https://github.com/SkyLined/mWindowsAPI/
 [submodule "modules/mWindowsSDK"]
 	path = modules/mWindowsSDK
 	url = https://github.com/SkyLined/mWindowsSDK/
+[submodule "modules/mRegistry"]
+	path = modules/mRegistry
+	url = https://github.com/SkyLined/mRegistry/
