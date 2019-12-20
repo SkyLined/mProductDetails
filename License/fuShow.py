@@ -10,8 +10,6 @@ def fUsage(sMainScriptName, sFeatureName):
 
 def fuShow(sMainScriptName, sFeatureName, asArguments, dsArguments):
   # Parse arguments
-  sProductFolderPath = None;
-  sLicenseFilePath = None;
   for (sName, sValue) in dsArguments.items():
     if sName == "help":
       fUsage(sMainScriptName, sFeatureName);
