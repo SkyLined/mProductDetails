@@ -32,13 +32,11 @@ def foGetLicenseCollectionForAllLoadedProducts():
     if not os.path.isfile(sLicenseFilePath):
       continue;
     try:
-      oFile = open(sLicenseFilePath, "rb");
-      try:
+      with open(sLicenseFilePath, "rb") as oFile:
         sLicenseBlocks = oFile.read();
-      finally:
-        oFile.close();
-    except:
-      asErrors.append("License file %s could not be read." % (sLicenseFilePath, oProductDetails.sProductName));
+    except Exception:
+      asErrors.append("License file %s for product %s could not be read." % \
+          (sLicenseFilePath, oProductDetails.sProductName));
     if gbShowDebugOutput: print "Licenses read from %s:" % sLicenseFilePath;
     aoLicensesFromFile = cLicense.faoForLicenseBlocks(sLicenseBlocks);
     if not aoLicensesFromFile:
@@ -53,7 +51,6 @@ def foGetLicenseCollectionForAllLoadedProducts():
       bWriteToRegistry = True;
       if oLicenseFromRegistry is None:
         if gbShowDebugOutput: print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-        pass;
       elif sorted(oLicenseFromFile.asProductNames) != sorted(oLicenseFromRegistry.asProductNames):
         if gbShowDebugOutput: print "  + %s for %s (updated product names)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
         # We may load the same license from file twice, but we can only remove it once:

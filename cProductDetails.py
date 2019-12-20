@@ -88,13 +88,10 @@ class cProductDetails(object):
     );
     sJSONFilePath = os.path.join(oSelf.sInstallationFolderPath, gsJSONFileName);
     try:
-      oFile = open(sJSONFilePath, "wb");
-    except:
+      with open(sJSONFilePath, "wb") as oFile:
+        oFile.write(sProductDetailsJSONData);
+    except Exception:
       return False;
-    try:
-       oFile.write(sProductDetailsJSONData);
-    finally:
-      oFile.close();
     return True;
   
   @property
@@ -137,7 +134,7 @@ class cProductDetails(object):
           sProductDetailsJSONData = oSelf.oRepository.sLatestProductDetailsJSONData,
           sDataNameInError = "latest product details JSON file from repository",
         );
-      except:
+      except Exception:
         pass;
     return oSelf.__oLatestProductDetailsFromRepository;
 
