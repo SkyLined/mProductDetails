@@ -112,8 +112,6 @@ class cLicense(object):
   @property
   def bIsActive(oSelf):
     return not oSelf.oStartDate.fbIsInTheFuture() and not oSelf.bIsExpired;
-      
-    return ;
   
   @property
   def bIsExpired(oSelf):
