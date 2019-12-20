@@ -181,7 +181,7 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
     if xData.__class__ not in [str, unicode]:
       raise cDataStructure.cDataErrorException("%s should contain a string, not %s" % (sDataNameInError, repr(xData)));
     return str(xData);
-  elif xStructureDetails == None:
+  elif xStructureDetails is None:
     if xData is not None:
       raise cDataStructure.cDataErrorException("%s should have no value, not %s" % (sDataNameInError, repr(xData)));
     return None;
