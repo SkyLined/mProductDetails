@@ -1,4 +1,4 @@
-import hashlib, hmac, re;
+import hashlib, re;
 
 from mDateTime import cDate, cDateDuration;
 from .cErrorException import cErrorException;
@@ -215,4 +215,3 @@ class cLicense(object):
 
 from .cLicenseCheckServer import cLicenseCheckServer;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
-from mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue;

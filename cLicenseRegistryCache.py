@@ -184,4 +184,4 @@ class cLicenseRegistryCache(object):
   
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
-from mRegistry import cRegistryHiveKey, cRegistryHiveKeyNamedValue, cRegistryValue;
+from mRegistry import cRegistryHiveKey;

@@ -1,4 +1,4 @@
-import json, os, re, sys, time;
+import os, re, sys;
 
 # This script should be run as if mProductDetails is a module, so we need to
 # alter the search path:

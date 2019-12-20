@@ -1,5 +1,3 @@
-import re;
-
 from mProductDetails.cProductDetails import cProductDetails;
 from mProductDetails.cVersion import cVersion;
 

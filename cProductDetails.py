@@ -1,6 +1,4 @@
-import os, sys;
-
-from mDateTime import cDate;
+import os;
 # The rest of the imports are at the end to prevent import loops.
 
 gsJSONFileName = "dxProductDetails.json";

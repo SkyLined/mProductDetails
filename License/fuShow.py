@@ -1,5 +1,3 @@
-import re;
-
 from mProductDetails.faoGetLicensesFromRegistry import faoGetLicensesFromRegistry;
 
 def fUsage(sMainScriptName, sFeatureName):
