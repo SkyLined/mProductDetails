@@ -19,7 +19,7 @@ dFeature_fuMain_by_sName = {
   "update": fuUpdate,
 };
 dFeature_sDescription_by_sName = {
-  "update": "show the product version.",
+  "show": "show the product version.",
   "update": "update the product version.",
 };
 
