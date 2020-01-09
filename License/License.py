@@ -9,15 +9,18 @@ asOriginalSysPath = sys.path[:];
 sys.path = [sMainFolderPath, sParentFolderPath, sModulesFolderPath] + sys.path;
 
 from fuShow import fuShow;
+from fuCheck import fuCheck;
 
 # Restore the search path
 sys.path = asOriginalSysPath;
 
 dFeature_fuMain_by_sName = {
   "show": fuShow,
+  "check": fuCheck,
 };
 dFeature_sDescription_by_sName = {
   "show":     "show licenses stored in the registery on this system.",
+  "check":    "check licenses stored in the registery on this system or a single file.",
 };
 
 def fUsage(sMainScriptName):
@@ -30,7 +33,16 @@ def fUsage(sMainScriptName):
   print "";
   print "For more details about a specific feature, use --help, as in:";
   print "  %s <feature> --help" % sMainScriptName;
-
+  print "";
+  print "Exit codes:";
+  print "  0 = executed successfully, no license information found.";
+  print "  1 = executed successfully, license information found and optionally checked successfully.";
+  print "  2 = bad arguments.";
+  print "  3 = internal error";
+  print "  4 = cannot read product information in current folder";
+  print "  5 = cannot read license information";
+  print "  6 = cannot check license information";
+  print "  7 = one or more licenses were not valid";
 
 def fuMain(sMainScriptName, asArguments):
   if len(asArguments) == 0:
