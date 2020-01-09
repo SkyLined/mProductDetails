@@ -7,7 +7,7 @@ def fUsage(sMainScriptName, sFeatureName):
   print "Usage:";
   print "  %s %s <settings>" % (sMainScriptName, sFeatureName);
   print "Where <settings> are:";
-  print " [--product=]<product folder>    The root folder for the product.";
+  print " [--product=]<product folder path>    The root folder for the product.";
 
 def fuUpdate(sMainScriptName, sFeatureName, asArguments, dsArguments):
   if len(asArguments) + len(dsArguments) == 0:
