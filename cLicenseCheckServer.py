@@ -10,12 +10,13 @@ class cLicenseCheckServer(object):
   def __init__(oSelf, sServerURL):
     oSelf.sServerURL = sServerURL;
   
-  def foGetLicenseCheckResult(oSelf, oLicense):
+  def foGetLicenseCheckResult(oSelf, oLicense, bCheckOnly = False):
     sLicenseCheckResultJSONData = fsGetHTTPResponseData(
       sURL = oSelf.sServerURL,
       sPostData = json.dumps({
         "sLicenseBlock": oLicense.sLicenseBlock,
         "sSystemId": fsGetSystemId(),
+        "bCheckOnly": bCheckOnly,
       }), 
       sURLNameInException = "The license check server at " + oSelf.sServerURL,
       cException = cLicenseCheckServer.cServerErrorException,
