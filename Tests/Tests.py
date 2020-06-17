@@ -1,15 +1,42 @@
 from fTestDependencies import fTestDependencies;
 fTestDependencies();
 
-from mDebugOutput import fEnableDebugOutputForClass, fEnableDebugOutputForModule, fTerminateWithException;
 try:
+  import mDebugOutput;
+except:
+  mDebugOutput = None;
+try:
+  try:
+    from oConsole import oConsole;
+  except:
+    import sys, threading;
+    oConsoleLock = threading.Lock();
+    class oConsole(object):
+      @staticmethod
+      def fOutput(*txArguments, **dxArguments):
+        sOutput = "";
+        for x in txArguments:
+          if isinstance(x, (str, unicode)):
+            sOutput += x;
+        sPadding = dxArguments.get("sPadding");
+        if sPadding:
+          sOutput.ljust(120, sPadding);
+        oConsoleLock.acquire();
+        print sOutput;
+        sys.stdout.flush();
+        oConsoleLock.release();
+      fPrint = fOutput;
+      @staticmethod
+      def fStatus(*txArguments, **dxArguments):
+        pass;
+  
   import os, sys;
-
+  
   import mProductDetails;
   from mProductDetails.fsToOxfordComma import fsToOxfordComma;
-
+  
   print "Unique system id: " + mProductDetails.fsGetSystemId();
-
+  
   print "Product version information:";
   oMainProductDetails = mProductDetails.foGetProductDetailsForModule(mProductDetails);
   aoProductDetails = mProductDetails.faoGetProductDetailsForAllLoadedModules();
@@ -20,7 +47,7 @@ try:
     print "+ \"%s\" version \"%s\" by \"%s\" installed in \"%s\"." % \
         (oProductDetails.sProductName, oProductDetails.oProductVersion, oProductDetails.sProductAuthor, oProductDetails.sInstallationFolderPath);
   print;
-
+  
   print "Checking licenses for loaded software products:";
   oLicenseCollection = mProductDetails.foGetLicenseCollectionForAllLoadedProducts();
   (asErrors, asWarnings) = oLicenseCollection.ftasGetLicenseErrorsAndWarnings();
@@ -29,13 +56,13 @@ try:
     for sError in asErrors:
       print "- " + sError;
     print;
-
+  
   if asWarnings:
     print "Software license warning%s:" % (len(asWarnings) > 1 and "s" or "");
     for sWarning in asWarnings:
       print "* " + sWarning;
     print;
-
+  
   print "Software license information in registry:";
   aoLicenses = mProductDetails.faoGetLicensesFromRegistry();
   if not aoLicenses:
@@ -47,6 +74,8 @@ try:
     print "  Instances  : %s" % oLicense.uLicensedInstances;
     print "  End date   : %s" % oLicense.oEndDate.fsToHumanReadableString();
     print "  Id         : %s" % oLicense.sLicenseId;
-
+  
 except Exception as oException:
-  fTerminateWithException(oException);
+  if mDebugOutput:
+    mDebugOutput.fTerminateWithException(oException, bShowStacksForAllThread = True);
+  raise;
