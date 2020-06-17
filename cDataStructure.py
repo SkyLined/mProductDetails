@@ -64,19 +64,24 @@ def fxConvertFromJSONData(xStructureDetails, xJSONData, sDataNameInError, sBaseP
       raise cDataStructure.cJSONSyntaxErrorException("%s should contain a dictionary, not %s" % (sDataNameInError, repr(xJSONData)));
     dxStructureDetails_by_sChildName = xStructureDetails;
     xStructureDetailsForUnspecifiedChildren = dxStructureDetails_by_sChildName.get("*");
-    asMissingChildNames = [s for s in dxStructureDetails_by_sChildName.keys() if s != "*"];
+    asRequiredChildNames = [s for s in dxStructureDetails_by_sChildName.keys() if s != "*" and s[0] != "?"];
+    asOptionalChildNames = [s[1:] for s in dxStructureDetails_by_sChildName.keys() if s != "*" and s[0] == "?"];
     dxData = {};
     for (sChildName, xChildValue) in xJSONData.items():
-      if sChildName not in asMissingChildNames:
-        if not xStructureDetailsForUnspecifiedChildren:
-          raise cDataStructure.cJSONSyntaxErrorException("%s contains an unexpected value %s=%s" % \
-              (sDataNameInError, repr(sChildName), repr(xChildValue)));
-      else:
-        asMissingChildNames.remove(sChildName);
-      xChildStructureDetails = dxStructureDetails_by_sChildName.get(sChildName) or xStructureDetailsForUnspecifiedChildren;
+      if sChildName in asRequiredChildNames:
+        xChildStructureDetails = dxStructureDetails_by_sChildName[sChildName];
+        asRequiredChildNames.remove(sChildName);
+      elif sChildName in asOptionalChildNames:
+        xChildStructureDetails = dxStructureDetails_by_sChildName["?" + sChildName];
+        asOptionalChildNames.remove(sChildName);
+      elif not xStructureDetailsForUnspecifiedChildren:
+        xChildStructureDetails = xStructureDetailsForUnspecifiedChildren;
+        raise cDataStructure.cJSONSyntaxErrorException("%s contains an unexpected value %s=%s" % \
+            (sDataNameInError, repr(sChildName), repr(xChildValue)));
       sChildNameInErrors = "%s.%s" % (sDataNameInError, sChildName);
       dxData[sChildName] = fxConvertFromJSONData(xChildStructureDetails, xChildValue, sChildNameInErrors, sBasePath);
-    if asMissingChildNames:
+    # All required names should have been found:
+    if asRequiredChildNames:
       raise cDataStructure.cJSONSyntaxErrorException("%s does not contain a value named %s" % (sDataNameInError, repr(asMissingChildNames[0])));
     return dxData;
   elif xStructureDetails.__class__ == list:
