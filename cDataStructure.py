@@ -153,10 +153,13 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
   elif xStructureDetails.__class__ == dict:
     dxJSONData = {};
     for (sPropertyName, xPropertyStructureDetails) in xStructureDetails.items():
-      if not hasattr(xData, sPropertyName):
+      bOptional = sPropertyName[0] == "?";
+      if bOptional: sPropertyName = sPropertyName[1:];
+      if hasattr(xData, sPropertyName):
+        xPropertyData = getattr(xData, sPropertyName);
+        dxJSONData[sPropertyName] = fxConvertToJSONData(xPropertyStructureDetails, xPropertyData, "%s.%s" % (sDataNameInError, sPropertyName), sBasePath);
+      elif not bOptional:
         raise cDataStructure.cDataErrorException("%s does not have a %s property." % (sDataNameInError, repr(sPropertyName)));
-      xPropertyData = getattr(xData, sPropertyName);
-      dxJSONData[sPropertyName] = fxConvertToJSONData(xPropertyStructureDetails, xPropertyData, "%s.%s" % (sDataNameInError, sPropertyName), sBasePath);
     return dxJSONData;
   elif xStructureDetails.__class__ == list:
     if xData.__class__ != list:
