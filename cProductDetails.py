@@ -57,11 +57,12 @@ class cProductDetails(object):
     sProductName,
     oProductVersion,
     sProductAuthor,
-    sProductURL,
-    oTrialPeriodDuration,
-    sLicenseServerURL,
-    oRepository,
-    asDependentOnProductNames,
+    sProductURL = None,
+    oTrialPeriodDuration = None,
+    sLicenseServerURL = None,
+    oRepository = None,
+    asDependentOnProductNames = [],
+    asOptionalProductNames = [],
   ):
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
@@ -71,6 +72,7 @@ class cProductDetails(object):
     oSelf.sLicenseServerURL = sLicenseServerURL;
     oSelf.oRepository = oRepository;
     oSelf.asDependentOnProductNames = asDependentOnProductNames;
+    oSelf.asOptionalProductNames = asOptionalProductNames;
     oSelf.sInstallationFolderPath = None;
     
     oSelf.__oLicense = None;
@@ -157,10 +159,10 @@ goProductDetailsDataStructure = cDataStructure(
     "sProductName": "string", 
     "oProductVersion": "version",
     "sProductAuthor": "string", 
-    "sProductURL": ("string", None), 
-    "oTrialPeriodDuration": ("duration", None),
-    "sLicenseServerURL": ("string", None),
-    "oRepository": (
+    "?sProductURL": ("string", None), 
+    "?oTrialPeriodDuration": ("duration", None),
+    "?sLicenseServerURL": ("string", None),
+    "?oRepository": (
       cDataStructure(
         {
           "sType": "string:GitHub",
@@ -172,9 +174,12 @@ goProductDetailsDataStructure = cDataStructure(
       ),
       None # No repository
     ),
-    "asDependentOnProductNames": [
+    "?asDependentOnProductNames": ([
       "string",
-    ],
+    ], None),
+    "?asOptionalProductNames": ([
+      "string",
+    ], None),
   },
   cProductDetails,
 );
