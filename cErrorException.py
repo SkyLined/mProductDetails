@@ -1,5 +1,6 @@
 class cErrorException(Exception):
   def __init__(oSelf, sMessage):
+    super(cErrorException, oSelf).__init__(sMessage);
     oSelf.sMessage = sMessage;
   def __str__(oSelf):
     return oSelf.sMessage;
