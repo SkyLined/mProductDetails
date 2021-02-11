@@ -18,7 +18,6 @@ socket
 ssl
 string
 strop
-struct
 subprocess
 textwrap
 thread
@@ -27,4 +26,3 @@ time
 urllib
 urlparse
 uuid
-winreg
