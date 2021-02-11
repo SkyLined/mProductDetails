@@ -80,9 +80,9 @@ def fxConvertFromJSONData(xStructureDetails, xJSONData, sDataNameInError, sBaseP
             (sDataNameInError, repr(sChildName), repr(xChildValue)));
       sChildNameInErrors = "%s.%s" % (sDataNameInError, sChildName);
       dxData[sChildName] = fxConvertFromJSONData(xChildStructureDetails, xChildValue, sChildNameInErrors, sBasePath);
-    # All required names should have been found:
+    # All required names should have been found and removed. If any still exist, report one of them:
     if asRequiredChildNames:
-      raise cDataStructure.cJSONSyntaxErrorException("%s does not contain a value named %s" % (sDataNameInError, repr(asMissingChildNames[0])));
+      raise cDataStructure.cJSONSyntaxErrorException("%s does not contain a value named %s" % (sDataNameInError, repr(asRequiredChildNames[0])));
     return dxData;
   elif xStructureDetails.__class__ == list:
     if xJSONData.__class__ != list:
