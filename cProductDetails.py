@@ -57,6 +57,11 @@ class cProductDetails(object):
     sProductName,
     oProductVersion,
     sProductAuthor,
+    asProductTypes,
+    sPythonModuleName = None,
+    asPythonApplicationNames = [],
+    asJavaScriptModuleNames = [],
+    asPHPModuleNames = [],
     sProductURL = None,
     oTrialPeriodDuration = None,
     sLicenseServerURL = None,
@@ -67,6 +72,11 @@ class cProductDetails(object):
     oSelf.sProductName = sProductName;
     oSelf.oProductVersion = oProductVersion;
     oSelf.sProductAuthor = sProductAuthor;
+    oSelf.asProductTypes = asProductTypes;
+    oSelf.sPythonModuleName = sPythonModuleName;
+    oSelf.asPythonApplicationNames = asPythonApplicationNames;
+    oSelf.asJavaScriptModuleNames = asJavaScriptModuleNames;
+    oSelf.asPHPModuleNames = asPHPModuleNames;
     oSelf.sProductURL = sProductURL;
     oSelf.oTrialPeriodDuration = oTrialPeriodDuration;
     oSelf.sLicenseServerURL = sLicenseServerURL;
@@ -159,6 +169,11 @@ goProductDetailsDataStructure = cDataStructure(
     "sProductName": "string", 
     "oProductVersion": "version",
     "sProductAuthor": "string", 
+    "asProductTypes": ["string"],
+    "?sPythonModuleName": "string",
+    "?asPythonApplicationNames": ["string"],
+    "?asJavaScriptModuleNames": ["string"],
+    "?asPHPModuleNames": ["string"],
     "?sProductURL": ("string", None), 
     "?oTrialPeriodDuration": ("duration", None),
     "?sLicenseServerURL": ("string", None),

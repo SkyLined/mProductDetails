@@ -1,4 +1,6 @@
 {
+  "asProductTypes": ["Python module"],
+  "sPythonModuleName": "mProductDetails",
   "asDependentOnProductNames": [
     "mDateTime", 
     "mRegistry", 
