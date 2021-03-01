@@ -157,7 +157,8 @@ def fxConvertToJSONData(xStructureDetails, xData, sDataNameInError, sBasePath):
       if bOptional: sPropertyName = sPropertyName[1:];
       if hasattr(xData, sPropertyName):
         xPropertyData = getattr(xData, sPropertyName);
-        dxJSONData[sPropertyName] = fxConvertToJSONData(xPropertyStructureDetails, xPropertyData, "%s.%s" % (sDataNameInError, sPropertyName), sBasePath);
+        if xPropertyData is not None:
+          dxJSONData[sPropertyName] = fxConvertToJSONData(xPropertyStructureDetails, xPropertyData, "%s.%s" % (sDataNameInError, sPropertyName), sBasePath);
       elif not bOptional:
         raise cDataStructure.cDataErrorException("%s does not have a %s property." % (sDataNameInError, repr(sPropertyName)));
     return dxJSONData;
