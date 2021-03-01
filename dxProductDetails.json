@@ -11,15 +11,13 @@
     "Python module"
   ], 
   "asPythonApplicationNames": [], 
-  "oProductVersion": "2021-03-01 09:15", 
+  "oProductVersion": "2021-03-01 09:26", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "mProductDetails", 
     "sType": "GitHub", 
     "sUserName": "SkyLined"
   }, 
-  "oTrialPeriodDuration": null, 
-  "sLicenseServerURL": null, 
   "sProductAuthor": "SkyLined", 
   "sProductName": "mProductDetails", 
   "sProductURL": "https://github.com/SkyLined/mProductDetails", 
