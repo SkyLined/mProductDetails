@@ -1,13 +1,17 @@
 {
-  "asProductTypes": ["Python module"],
-  "sPythonModuleName": "mProductDetails",
   "asDependentOnProductNames": [
     "mDateTime", 
     "mRegistry", 
     "mWindowsSDK"
   ], 
+  "asJavaScriptModuleNames": [], 
   "asOptionalProductNames": [], 
-  "oProductVersion": "2020-08-12 11:48", 
+  "asPHPModuleNames": [], 
+  "asProductTypes": [
+    "Python module"
+  ], 
+  "asPythonApplicationNames": [], 
+  "oProductVersion": "2021-03-01 09:15", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "mProductDetails", 
@@ -18,5 +22,6 @@
   "sLicenseServerURL": null, 
   "sProductAuthor": "SkyLined", 
   "sProductName": "mProductDetails", 
-  "sProductURL": "https://github.com/SkyLined/mProductDetails"
+  "sProductURL": "https://github.com/SkyLined/mProductDetails", 
+  "sPythonModuleName": "mProductDetails"
 }
