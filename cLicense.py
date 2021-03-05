@@ -1,9 +1,9 @@
 import hashlib, re;
 
 from mDateTime import cDate, cDateDuration;
+from mHumanReadable import fsArrayToHumanReadableString, fasArrayFromHumanReadableString;
+
 from .cErrorException import cErrorException;
-from .fsToOxfordComma import fsToOxfordComma;
-from .fasFromOxfordComma import fasFromOxfordComma;
 # The rest of the imports are at the end to prevent import loops.
 
 gsLicenseBlockHeader = "This is a license key covering software created by SkyLined";
@@ -61,7 +61,7 @@ class cLicense(object):
         if not sConstructorArgumentName:
           raise cLicense.cSyntaxErrorException("The license contains a value %s=%s, which is not expected" % (sDetailsValueName, sValue));
         if sConstructorArgumentName[0:2] == "as":
-          xValue = fasFromOxfordComma(sValue);
+          xValue = fasArrayFromHumanReadableString(sValue);
         elif sConstructorArgumentName[0] == "s":
           xValue = sValue;
         elif sConstructorArgumentName[0] == "u":
@@ -179,25 +179,25 @@ class cLicense(object):
       return oSelf.sLicenseCheckServerError;
     elif oSelf.bIsExpired:
       return "License %s for %s expired on %s." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oEndDate.fsToHumanReadableString());
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames), oSelf.oEndDate.fsToHumanReadableString());
     elif not oSelf.bIsActive:
       return "License %s for %s activates on %s." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.oStartDate.fsToHumanReadableString());
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames), oSelf.oStartDate.fsToHumanReadableString());
     elif not oSelf.bIsValid:
       return "License %s for %s is not valid." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames));
     elif not oSelf.bInLicensePeriodAccordingToServer:
       return "License %s for %s is not active at this date according to the server." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames));
     elif oSelf.sIsRevokedForReason:
       return "License %s for %s has been revoked: %s." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames), oSelf.sIsRevokedForReason);
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames), oSelf.sIsRevokedForReason);
     elif oSelf.bDeactivatedOnSystem:
       return "License %s for %s has been deactivated on this system." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames));
     elif oSelf.bLicenseInstancesExceeded:
       return "License %s for %s has exceeded its maximum number of instances." % \
-          (oSelf.sLicenseId, fsToOxfordComma(oSelf.asProductNames));
+          (oSelf.sLicenseId, fsArrayToHumanReadableString(oSelf.asProductNames));
     return None;
 
   def fasGetWarnings(oSelf):
@@ -205,10 +205,10 @@ class cLicense(object):
     # warn if license will expire in less than one month.
     if cDate.foNow().foGetEndDateForDuration(cDateDuration.foFromString("1m")).fbIsAfter(oSelf.oEndDate):
       asLicenseWarnings.append("Your license for %s with id %s will expire on %s." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sLicenseId, oSelf.oEndDate.fsToHumanReadableString()));
+          (fsArrayToHumanReadableString(oSelf.asProductNames), oSelf.sLicenseId, oSelf.oEndDate.fsToHumanReadableString()));
     if oSelf.bMayNeedToBeUpdated:
       asLicenseWarnings.append("Your license for %s with id %s may need to be updated." % \
-          (fsToOxfordComma(oSelf.asProductNames), oSelf.sLicenseId));
+          (fsArrayToHumanReadableString(oSelf.asProductNames), oSelf.sLicenseId));
     return asLicenseWarnings;
 
 from .cLicenseCheckServer import cLicenseCheckServer;

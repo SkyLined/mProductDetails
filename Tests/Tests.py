@@ -33,7 +33,6 @@ try:
   import os, sys;
   
   import mProductDetails;
-  from mProductDetails.fsToOxfordComma import fsToOxfordComma;
   
   print "Unique system id: " + mProductDetails.fsGetSystemId();
   
@@ -69,7 +68,7 @@ try:
     print "- No licenses loaded";
   for oLicense in aoLicenses:
     print "+ %s licensed to %s:" % (oLicense.asProductNames[0], oLicense.sLicenseeName);
-    print "  Products   : %s" % fsToOxfordComma(oLicense.asProductNames);
+    print "  Products   : %s" % " | ".join(oLicense.asProductNames);
     print "  Usage type : %s" % oLicense.sUsageTypeDescription;
     print "  Instances  : %s" % oLicense.uLicensedInstances;
     print "  End date   : %s" % oLicense.oEndDate.fsToHumanReadableString();
