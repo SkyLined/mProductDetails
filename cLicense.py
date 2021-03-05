@@ -1,7 +1,7 @@
 import hashlib, re;
 
 from mDateTime import cDate, cDateDuration;
-from mHumanReadable import fsArrayToHumanReadableString, fasArrayFromHumanReadableString;
+from mHumanReadable import fsArrayToHumanReadableString, fasHumanReadableStringToArray;
 
 from .cErrorException import cErrorException;
 # The rest of the imports are at the end to prevent import loops.
@@ -61,7 +61,7 @@ class cLicense(object):
         if not sConstructorArgumentName:
           raise cLicense.cSyntaxErrorException("The license contains a value %s=%s, which is not expected" % (sDetailsValueName, sValue));
         if sConstructorArgumentName[0:2] == "as":
-          xValue = fasArrayFromHumanReadableString(sValue);
+          xValue = fasHumanReadableStringToArray(sValue);
         elif sConstructorArgumentName[0] == "s":
           xValue = sValue;
         elif sConstructorArgumentName[0] == "u":
