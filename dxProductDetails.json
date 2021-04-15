@@ -2,7 +2,7 @@
   "asDependentOnProductNames": [
     "mDateTime", 
     "mRegistry", 
-    "mWindowsSDK",
+    "mWindowsSDK", 
     "mHumanReadable"
   ], 
   "asJavaScriptModuleNames": [], 
@@ -12,7 +12,7 @@
     "Python module"
   ], 
   "asPythonApplicationNames": [], 
-  "oProductVersion": "2021-03-01 18:35", 
+  "oProductVersion": "2021-04-15 11:37", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "mProductDetails", 
