@@ -1,81 +1,81 @@
-class cLicenseCheckResult(object):
-  def __init__(oSelf, xUnused = None,
-    bLicenseIsValid = None,
-    bLicenseMayNeedToBeUpdated = None,
-    bInLicensePeriod = None,
-    sLicenseIsRevokedForReason = None,
-    bDeactivatedOnSystem = None,
-    bLicenseInstancesExceeded = None,
-    oNextCheckWithServerDate = None,
-    sError = None, # Required for creation using cDataStructure in cLicenseCheckServer
+from mDateTime import cDate;
+
+try:
+  from mNotProvided import fAssertTypes as f0AssertTypes;
+except ModuleNotFoundError as oException:
+  if oException.args[0] != "No module named 'mNotProvided'":
+    raise;
+  f0AssertTypes = None;
+
+from .cVersion import cVersion;
+from .iObjectWithInheritingDataStructure import iObjectWithInheritingDataStructure;
+from .cDataStructure import cDataStructure;
+
+class cLicenseCheckResult(iObjectWithInheritingDataStructure):
+  sRequestStructureVersion = "2021-07-02 11:16"; # Which structure version to ask the server to provide.
+  dxInheritingValues = {
+    "sStructureVersion": "2021-07-02 11:16",
+  };
+  def __init__(oSelf,
+    s0LicensesIsInvalidForReason,
+    oNextCheckWithServerDate,
+    bLicenseMayNeedToBeUpdated,
+    b0InLicensePeriod,
+    s0LicenseIsRevokedForReason,
+    b0DeactivatedOnSystem,
+    b0LicenseInstancesExceeded,
   ):
-    assert xUnused is None, \
-        "You must call this function with named arguments!";
-    assert sError is None, \
-        "You must call this function without a value for sError!";
-    
-    assert oNextCheckWithServerDate is not None, \
-        "You must provide a valid value for oNextCheckWithServerDate";
-
-    if isinstance(sLicenseIsRevokedForReason, unicode):
-      try:
-        sLicenseIsRevokedForReason = str(sLicenseIsRevokedForReason);
-      except:
-        raise AssertionError(
-          "You must provide an ASCII string value for sLicenseIsRevokedForReason, not %s" % repr(sLicenseIsRevokedForReason)
-        );
-    oSelf.bLicenseIsValid = bLicenseIsValid;
+    if f0AssertTypes: f0AssertTypes({
+      "s0LicensesIsInvalidForReason": (s0LicensesIsInvalidForReason, str, None),
+      "bLicenseMayNeedToBeUpdated": (bLicenseMayNeedToBeUpdated, bool),
+      "b0InLicensePeriod": (b0InLicensePeriod, bool, None),
+      "s0LicenseIsRevokedForReason": (s0LicenseIsRevokedForReason, str, None),
+      "b0DeactivatedOnSystem": (b0DeactivatedOnSystem, bool, None),
+      "b0LicenseInstancesExceeded": (b0LicenseInstancesExceeded, bool, None),
+      "oNextCheckWithServerDate": (oNextCheckWithServerDate, cDate),
+    });
+    oSelf.s0LicensesIsInvalidForReason = s0LicensesIsInvalidForReason;
     oSelf.bLicenseMayNeedToBeUpdated = bLicenseMayNeedToBeUpdated;
-    oSelf.bInLicensePeriod = bInLicensePeriod;
-    oSelf.sLicenseIsRevokedForReason = sLicenseIsRevokedForReason;
-    oSelf.bDeactivatedOnSystem = bDeactivatedOnSystem;
-    oSelf.bLicenseInstancesExceeded = bLicenseInstancesExceeded;
+    oSelf.b0InLicensePeriod = b0InLicensePeriod;
+    oSelf.s0LicenseIsRevokedForReason = s0LicenseIsRevokedForReason;
+    oSelf.b0DeactivatedOnSystem = b0DeactivatedOnSystem;
+    oSelf.b0LicenseInstancesExceeded = b0LicenseInstancesExceeded;
     oSelf.oNextCheckWithServerDate = oNextCheckWithServerDate;
-    
-    # bLicenseIsValid
-    assert isinstance(bLicenseIsValid, bool), \
-        "You must provide a valid value for bLicenseIsValid";
-    if not bLicenseIsValid:
-      assert bInLicensePeriod is None, \
-          "You cannot provide a value for bInLicensePeriod == %s when bLicenseIsValid == False" % repr(bInLicensePeriod);
-      assert sLicenseIsRevokedForReason is None, \
-          "You cannot provide a value for sLicenseIsRevokedForReason when bLicenseIsValid == False";
-      assert bDeactivatedOnSystem is None, \
-          "You cannot provide a value for bDeactivatedOnSystem when bLicenseIsValid == False";
-      assert bLicenseInstancesExceeded is None, \
-          "You cannot provide a value for bLicenseInstancesExceeded when bLicenseIsValid == False";
-      assert bLicenseMayNeedToBeUpdated is not None, \
-          "You must provide a value for bLicenseMayNeedToBeUpdated when bLicenseIsValid == False";
-      return;
-    # bInLicensePeriod
-    assert isinstance(bInLicensePeriod, bool), \
-        "You must provide a valid value for bInLicensePeriod";
-    if not bInLicensePeriod:
-      assert sLicenseIsRevokedForReason is None, \
-          "You cannot provide a value for sLicenseIsRevokedForReason when bInLicensePeriod == False";
-      assert bDeactivatedOnSystem is None, \
-          "You cannot provide a value for bDeactivatedOnSystem when bInLicensePeriod == False";
-      assert bLicenseInstancesExceeded is None, \
-          "You cannot provide a value for bLicenseInstancesExceeded when bInLicensePeriod == False";
-      return;
-    # sLicenseIsRevokedForReason
-    if sLicenseIsRevokedForReason is not None:
-      assert isinstance(sLicenseIsRevokedForReason, str), \
-          "You must provide a string value for sLicenseIsRevokedForReason, not %s" % repr(sLicenseIsRevokedForReason);
-      assert bDeactivatedOnSystem is None, \
-          "You cannot provide a value for bDeactivatedOnSystem when sLicenseIsRevokedForReason != None";
-      assert bLicenseInstancesExceeded is None, \
-          "You cannot provide a value for bLicenseInstancesExceeded when sLicenseIsRevokedForReason != None";
-      return;
-    # bDeactivatedOnSystem
-    assert isinstance(bDeactivatedOnSystem, bool), \
-        "You must provide a valid value for bDeactivatedOnSystem";
-    if bDeactivatedOnSystem:
-      assert bLicenseInstancesExceeded is None, \
-          "You cannot provide a value for bLicenseInstancesExceeded when bDeactivatedOnSystem == True";
-      return;
-    
-    # bLicenseInstancesExceeded
-    assert isinstance(bLicenseInstancesExceeded, bool), \
-        "You must provide a valid value for bLicenseInstancesExceeded";
 
+cLicenseCheckResult.oDataStructure = cDataStructure(
+  {
+    "sStructureVersion": "string:2021-07-02 11:16",
+    # required
+    "s0LicensesIsInvalidForReason": ("string", None),
+    "oNextCheckWithServerDate": ("date"),
+    "bLicenseMayNeedToBeUpdated": ("boolean", None),
+    "b0InLicensePeriod": ("boolean", None),
+    "s0LicenseIsRevokedForReason": ("string", None),
+    "b0DeactivatedOnSystem": ("boolean", None),
+    "b0LicenseInstancesExceeded": ("boolean", None),
+    # optional
+    "?sError": None, # Automatically added by server; ignored.
+  },
+  f0oConstructor = (
+    lambda 
+      sStructureVersion, # not used
+      s0LicensesIsInvalidForReason,
+      oNextCheckWithServerDate,
+      bLicenseMayNeedToBeUpdated,
+      b0InLicensePeriod,
+      s0LicenseIsRevokedForReason,
+      b0DeactivatedOnSystem,
+      b0LicenseInstancesExceeded,
+      sError = None: # optional, ignored
+    cLicenseCheckResult(
+      s0LicensesIsInvalidForReason = s0LicensesIsInvalidForReason,
+      oNextCheckWithServerDate = oNextCheckWithServerDate,
+      bLicenseMayNeedToBeUpdated = bLicenseMayNeedToBeUpdated,
+      b0InLicensePeriod = b0InLicensePeriod,
+      s0LicenseIsRevokedForReason = s0LicenseIsRevokedForReason,
+      b0DeactivatedOnSystem = b0DeactivatedOnSystem,
+      b0LicenseInstancesExceeded = b0LicenseInstancesExceeded,
+    )
+  ),
+);
+cLicenseCheckResult.toCompatibleDataStructures = tuple(); # No older datastructures are supported at this time.;

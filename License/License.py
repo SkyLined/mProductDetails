@@ -24,25 +24,25 @@ dFeature_sDescription_by_sName = {
 };
 
 def fUsage(sMainScriptName):
-  print "Usage:";
-  print "  %s <feature> [feature arguments]" % sMainScriptName;
-  print "";
-  print "Where <feature> is anyone of the following:";
-  for (sName, sFeatureDescription) in dFeature_sDescription_by_sName.items():
-    print "  %-10s %s" % (sName, sFeatureDescription);
-  print "";
-  print "For more details about a specific feature, use --help, as in:";
-  print "  %s <feature> --help" % sMainScriptName;
-  print "";
-  print "Exit codes:";
-  print "  0 = executed successfully, no license information found.";
-  print "  1 = executed successfully, license information found and optionally checked successfully.";
-  print "  2 = bad arguments.";
-  print "  3 = internal error";
-  print "  4 = cannot read product information in current folder";
-  print "  5 = cannot read license information";
-  print "  6 = cannot check license information";
-  print "  7 = one or more licenses were not valid";
+  print("Usage:");
+  print("  %s <feature> [feature arguments]" % sMainScriptName);
+  print("");
+  print("Where <feature> is anyone of the following:");
+  for (sName, sFeatureDescription) in list(dFeature_sDescription_by_sName.items()):
+    print("  %-10s %s" % (sName, sFeatureDescription));
+  print("");
+  print("For more details about a specific feature, use --help, as in:");
+  print("  %s <feature> --help" % sMainScriptName);
+  print("");
+  print("Exit codes:");
+  print("  0 = executed successfully, no license information found.");
+  print("  1 = executed successfully, license information found and optionally checked successfully.");
+  print("  2 = bad arguments.");
+  print("  3 = internal error");
+  print("  4 = cannot read product information in current folder");
+  print("  5 = cannot read license information");
+  print("  6 = cannot check license information");
+  print("  7 = one or more licenses were not valid");
 
 def fuMain(sMainScriptName, asArguments):
   if len(asArguments) == 0:
@@ -61,7 +61,7 @@ def fuMain(sMainScriptName, asArguments):
   
   fuFeatureMain = dFeature_fuMain_by_sName.get(sFeatureName);
   if fuFeatureMain is None:
-    print "Unknown feature %s" % sFeatureName;
+    print("Unknown feature %s" % sFeatureName);
     return 1;
   return fuFeatureMain(sMainScriptName, sFeatureName, asFeatureArguments, dsFeatureArguments);
 

@@ -28,44 +28,43 @@ def foGetLicenseCollectionForAllLoadedProducts():
   asErrors = [];
   asWarnings = [];
   for oProductDetails in aoLoadedProductDetails:
-    sLicenseFilePath = os.path.join(oProductDetails.sInstallationFolderPath, gsDefaultLicenseFileName);
+    sLicenseFilePath = os.path.join(oProductDetails.s0InstallationFolderPath, gsDefaultLicenseFileName);
     if not os.path.isfile(sLicenseFilePath):
       continue;
     try:
-      with open(sLicenseFilePath, "rb") as oFile:
-        sLicenseBlocks = oFile.read();
-    except Exception:
-      asErrors.append("License file %s for product %s could not be read." % \
-          (sLicenseFilePath, oProductDetails.sProductName));
-    if gbShowDebugOutput: print "Licenses read from %s:" % sLicenseFilePath;
-    aoLicensesFromFile = cLicense.faoForLicenseBlocks(sLicenseBlocks);
-    if not aoLicensesFromFile:
-      asWarnings.append("No valid licenses were found in the file %s." % sLicenseFilePath);
-    for oLicenseFromFile in aoLicensesFromFile:
-      # Select only licenses for any of the loaded products:
-      if not (asLoadedProductNames & set(oLicenseFromFile.asProductNames)):
-        if gbShowDebugOutput: print "  - %s for %s (products not loaded)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-        continue;
-      # Add only licenses that were not already loaded from the registry:
-      oLicenseFromRegistry = doLicenseFromRegistry_by_sId.get(oLicenseFromFile.sLicenseId);
-      bWriteToRegistry = True;
-      if oLicenseFromRegistry is None:
-        if gbShowDebugOutput: print "  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-      elif sorted(oLicenseFromFile.asProductNames) != sorted(oLicenseFromRegistry.asProductNames):
-        if gbShowDebugOutput: print "  + %s for %s (updated product names)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-        # We may load the same license from file twice, but we can only remove it once:
-        if oLicenseFromRegistry in aoLoadedProductLicenses:
-          aoLoadedProductLicenses.remove(oLicenseFromRegistry);
-        # We may be appending the same license twice here, but that should not have any negative effect on licensing.
-        aoLoadedProductLicenses.append(oLicenseFromFile);
-        asWarnings.append("The license with id %s has been updated to apply to product %s using file %s." % \
-            (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
-      else:
-        if gbShowDebugOutput: print "  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames));
-        bWriteToRegistry = False;
-      if bWriteToRegistry and not oLicenseFromFile.fbWriteToRegistry():
-        asWarnings.append("The license with id %s for product %s from file %s could not be cached in the registry." % \
-            (oLicenseFromFile.sLincenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
+      aoLicensesFromFile = faoGetLicensesFromFile(sLicenseFilePath);
+    except Exception as oException:
+      asErrors.append("License file %s for product %s could not be read (%s)." % \
+          (sLicenseFilePath, oProductDetails.sProductName, repr(oException)));
+    else:
+      if gbShowDebugOutput: print("Licenses read from %s:" % sLicenseFilePath);
+      if not aoLicensesFromFile:
+        asWarnings.append("No valid licenses were found in the file %s." % sLicenseFilePath);
+      for oLicenseFromFile in aoLicensesFromFile:
+        # Select only licenses for any of the loaded products:
+        if not (asLoadedProductNames & set(oLicenseFromFile.asProductNames)):
+          if gbShowDebugOutput: print("  - %s for %s (products not loaded)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames)));
+          continue;
+        # Add only licenses that were not already loaded from the registry:
+        oLicenseFromRegistry = doLicenseFromRegistry_by_sId.get(oLicenseFromFile.sLicenseId);
+        bWriteToRegistry = True;
+        if oLicenseFromRegistry is None:
+          if gbShowDebugOutput: print("  + %s for %s (new)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames)));
+        elif sorted(oLicenseFromFile.asProductNames) != sorted(oLicenseFromRegistry.asProductNames):
+          if gbShowDebugOutput: print("  + %s for %s (updated product names)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames)));
+          # We may load the same license from file twice, but we can only remove it once:
+          if oLicenseFromRegistry in aoLoadedProductLicenses:
+            aoLoadedProductLicenses.remove(oLicenseFromRegistry);
+          # We may be appending the same license twice here, but that should not have any negative effect on licensing.
+          aoLoadedProductLicenses.append(oLicenseFromFile);
+          asWarnings.append("The license with id %s has been updated using %s to apply to product %s using file %s." % \
+              (oLicenseFromFile.sLicenseId, oLicenseFromFile.sLicenseSource, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
+        else:
+          if gbShowDebugOutput: print("  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames)));
+          bWriteToRegistry = False;
+        if bWriteToRegistry and not oLicenseFromFile.fbWriteToRegistry():
+          asWarnings.append("The license with id %s for product %s from file %s could not be cached in the registry." % \
+              (oLicenseFromFile.sLincenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
   # For products that have no active, valid license: add all licenses stored in files in the root folder of each product
   goLicenseCollectionForAllLoadedProducts = \
       cLicenseCollection(aoLoadedProductDetails, aoLoadedProductLicenses, asErrors, asWarnings);
@@ -74,4 +73,5 @@ def foGetLicenseCollectionForAllLoadedProducts():
 from .cLicense import cLicense;
 from .cLicenseCollection import cLicenseCollection;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
+from .faoGetLicensesFromFile import faoGetLicensesFromFile;
 from .faoGetProductDetailsForAllLoadedModules import faoGetProductDetailsForAllLoadedModules;

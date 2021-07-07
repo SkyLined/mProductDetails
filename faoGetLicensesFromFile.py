@@ -1,15 +1,12 @@
 
 def faoGetLicensesFromFile(sLicensesFilePath):
   try:
-    from cFileSystemItem import cFileSystemItem;
+    from mFileSystemItem import cFileSystemItem;
   except:
-    cFileSystemItem = None;
-  if cFileSystemItem:
-    sLicenseBlocks = cFileSystemItem(sLicenseFilePath).fsRead();
+    with open(sLicensesFilePath, "rb") as oLicensesFile:
+      sbLicenseBlocks = oLicensesFile.read();
   else:
-    with open(sLicensesFilePath) as oLicensesFile:
-      sLicenseBlocks = oLicensesFile.read();
-  
-  return cLicense.faoForLicenseBlocks(sLicenseBlocks);
+    sbLicenseBlocks = cFileSystemItem(sLicensesFilePath).fsbRead();
+  return cLicense.faoForLicenseBlocks(sbLicenseBlocks, "license file %s" % sLicensesFilePath);
   
 from .cLicense import cLicense;

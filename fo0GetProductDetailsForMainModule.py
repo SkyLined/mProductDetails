@@ -1,6 +1,6 @@
 import __main__;
 from .cProductDetails import cProductDetails;
 
-def foGetProductDetailsForMainModule():
+def fo0GetProductDetailsForMainModule():
   # Load and return product details for the main module (if it has them).
-  return cProductDetails.foGetForModule(__main__);
+  return cProductDetails.fo0GetForModule(__main__);

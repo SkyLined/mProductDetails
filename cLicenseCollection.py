@@ -17,15 +17,15 @@ class cLicenseCollection(object):
       return oSelf.__tasErrorsAndWarnings;
     asLicenseErrors = oSelf.asLoadErrors[:];
     asLicenseWarnings = oSelf.asLoadWarnings[:];
-    doLicenseCheckServer_by_sURL = {};
+    doLicenseServer_by_sbURL = {};
     for oProductDetails in oSelf.aoProductDetails:
-      if not oProductDetails.sLicenseServerURL:
+      if oProductDetails.sb0LicenseServerURL is None:
         continue; # No license required.
-      oLicenseCheckServer = doLicenseCheckServer_by_sURL.get(oProductDetails.sLicenseServerURL);
-      if not oLicenseCheckServer:
-        oLicenseCheckServer = doLicenseCheckServer_by_sURL[oProductDetails.sLicenseServerURL] = \
-            cLicenseCheckServer(oProductDetails.sLicenseServerURL);
-      if gbDebugOutput: print "* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails));
+      oLicenseServer = doLicenseServer_by_sbURL.get(oProductDetails.sb0LicenseServerURL);
+      if not oLicenseServer:
+        oLicenseServer = doLicenseServer_by_sbURL[oProductDetails.sb0LicenseServerURL] = \
+            cLicenseServer(oProductDetails.sb0LicenseServerURL);
+      if gbDebugOutput: print("* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails)));
       bFoundValidLicense = False;
       asProductLicensesErrors = [];
       asProductLicensesWarnings = [];
@@ -35,25 +35,25 @@ class cLicenseCollection(object):
         if asProductLicenseWarnings:
           # We may want to show warnings for invalid licenses if we cannot find a valid one.
           for sLicenseWarning in asProductLicenseWarnings:
-            if gbDebugOutput: print "    ! %s" % sLicenseWarning;
+            if gbDebugOutput: print("    ! %s" % sLicenseWarning);
           asProductLicensesWarnings.extend(asProductLicenseWarnings);
-        if gbDebugOutput: print "  * License: %s %X" % (oLicense.sLicenseId, id(oLicense));
+        if gbDebugOutput: print("  * License: %s %X" % (oLicense.sLicenseId, id(oLicense)));
         if oProductDetails.sProductName not in oLicense.asProductNames:
-          if gbDebugOutput: print "    - for products %s" % ", ".join(oLicense.asProductNames);
+          if gbDebugOutput: print("    - for products %s" % ", ".join(oLicense.asProductNames));
           continue;
         if oLicense.bNeedsToBeCheckedWithServer:
-          if gbDebugOutput: print "    * Checking with server...";
-          sLicenseCheckServerError = oLicense.fsCheckWithServerAndGetError(oLicenseCheckServer);
-          if sLicenseCheckServerError:
-            if gbDebugOutput: print "    - %s" % sLicenseCheckServerError;
-            asProductLicensesErrors.append(sLicenseCheckServerError);
+          if gbDebugOutput: print("    * Checking with server...");
+          sLicenseServerError = oLicense.fsCheckWithServerAndGetError(oLicenseServer);
+          if sLicenseServerError:
+            if gbDebugOutput: print("    - %s" % sLicenseServerError);
+            asProductLicensesErrors.append(sLicenseServerError);
             continue;
         sLicenseError = oLicense.fsGetError();
         if sLicenseError:
-          if gbDebugOutput: print "    - %s" % sLicenseError;
+          if gbDebugOutput: print("    - %s" % sLicenseError);
           asProductLicensesErrors.append(sLicenseError);
           continue;
-        if gbDebugOutput: print "    + OK";
+        if gbDebugOutput: print("    + OK");
         # This license is valid
         bFoundValidLicense = True;
         if asLicenseWarnings: # We always want to show warnings for valid licenses.
@@ -67,7 +67,7 @@ class cLicenseCollection(object):
             asProductLicensesErrors = [];
             asProductLicensesWarnings.append(
               "Could not validate the license for %s and your trial period will expire on %s" %
-              (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate.fsToHumanReadableString())
+              (oProductDetails.sProductName, oProductDetails.o0TrialPeriodEndDate.fsToHumanReadableString())
             );
         elif not oProductDetails.bHasTrialPeriod:
           # No license found; report an error if the product has no trial period.
@@ -78,13 +78,13 @@ class cLicenseCollection(object):
           # No license found; report a warning if in the trial period.
           asProductLicensesWarnings.append(
             "You have no license for %s and your trial period will expire on %s" %
-            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate.fsToHumanReadableString())
+            (oProductDetails.sProductName, oProductDetails.o0TrialPeriodEndDate.fsToHumanReadableString())
           );
         else:
           # No license found; report an error if the trial period has expired.
           asProductLicensesErrors.append(
             "You have no license for %s and your trial period expired on %s" %
-            (oProductDetails.sProductName, oProductDetails.oTrialPeriodEndDate.fsToHumanReadableString())
+            (oProductDetails.sProductName, oProductDetails.o0TrialPeriodEndDate.fsToHumanReadableString())
           );
         asLicenseErrors += asProductLicensesErrors;
         asLicenseWarnings += asProductLicensesWarnings;
@@ -95,22 +95,25 @@ class cLicenseCollection(object):
     # Return a valid active license for the product or None.
     assert oProductDetails in oSelf.aoProductDetails, \
         "Product %s is not in the license collection!?" % oProductDetails.sProductName;
-    if gbDebugOutput: print "* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails));
+    if gbDebugOutput: print("* Product: %s %X" % (oProductDetails.sProductName, id(oProductDetails)));
     for oLicense in oSelf.aoLicenses:
-      if gbDebugOutput: print "  * License: %s %X" % (oLicense.sLicenseId, id(oLicense));
+      if gbDebugOutput: print("  * License: %s %X" % (oLicense.sLicenseId, id(oLicense)));
       if oProductDetails.sProductName not in oLicense.asProductNames:
-        if gbDebugOutput: print "    - product %s" % (oProductDetails.sProductName);
+        if gbDebugOutput: print("    - product %s" % (oProductDetails.sProductName));
         continue;
-      oLicenseCheckServer = cLicenseCheckServer(oProductDetails.sLicenseServerURL);
-      sLicenseCheckServerError = oLicense.fsCheckWithServerAndGetError(oLicenseCheckServer);
-      if sLicenseCheckServerError:
-        if gbDebugOutput: print "    - %s" % sLicenseCheckServerError;
-        continue;
-      sLicenseError = oLicense.fsGetError();
-      if sLicenseError:
-        if gbDebugOutput: print "    - %s" % sLicenseError;
-        continue;
-      if gbDebugOutput: print "    + OK";
+      if oProductDetails.sb0LicenseServerURL:
+        oLicenseServer = cLicenseServer(oProductDetails.sb0LicenseServerURL);
+        sLicenseServerError = oLicense.fsCheckWithServerAndGetError(oLicenseServer);
+        if sLicenseServerError:
+          if gbDebugOutput: print("    - %s" % sLicenseServerError);
+          continue;
+        sLicenseError = oLicense.fsGetError();
+        if sLicenseError:
+          if gbDebugOutput: print("    - %s" % sLicenseError);
+          continue;
+        if gbDebugOutput: print("    + OK");
+      else:
+        if gbDebugOutput: print("    + OK (no license check server)");
       return oLicense;
 # ...actually you can if want to know if the product has a license:
 #    assert oProductDetails.bInTrialPeriod, \
@@ -119,8 +122,7 @@ class cLicenseCollection(object):
     return None;
   
   @property
-  def sLicenseBlocks(oSelf):
-    return "\r\n".join([oLicense.sLicenseBlock for oLicense in oSelf.aoLicenses]);
+  def sbLicenseBlocks(oSelf):
+    return b"\r\n".join([oLicense.sbLicenseBlock for oLicense in oSelf.aoLicenses]);
 
-from .cLicense import cLicense;
-from .cLicenseCheckServer import cLicenseCheckServer;
+from .cLicenseServer import cLicenseServer;

@@ -47,7 +47,7 @@ asUniqueValues = [
   os.getenv("USERNAME"),        # User name gathered from the environment.
 ];
 
-gsSystemId = hashlib.sha256("".join(asUniqueValues)).hexdigest()[:32];           # Limit to 32 characters.
+gsSystemId = hashlib.sha256("".join(asUniqueValues).encode("utf-8")).hexdigest()[:32];           # Limit to 32 characters.
 
 def fsGetSystemId():
   return gsSystemId;

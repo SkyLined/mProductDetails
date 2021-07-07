@@ -8,10 +8,11 @@ class cVersion(object):
     oNow = datetime.datetime.utcnow();
     return cVersion(oNow.year, oNow.month, oNow.day, oNow.hour, oNow.minute);
   @staticmethod
-  def foFromString(sVersion):
-    oVersionMatch = grVersion.match(sVersion);
+  def fo0FromString(s0Version):
+    if s0Version is None: return None;
+    oVersionMatch = grVersion.match(s0Version);
     if oVersionMatch is None: return None;
-    return cVersion(*[long(s) for s in oVersionMatch.groups()]);
+    return cVersion(*[int(s) for s in oVersionMatch.groups()]);
   def __init__(oSelf, uYear, uMonth, uDay, uHour, uMinute):
     assert uYear is not None, \
         "uYear cannot be None";
