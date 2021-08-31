@@ -146,14 +146,13 @@ class cLicense(object):
         return oServerResponseException.sMessage;
       oSelf.bNeedsToBeCheckedWithServer = False;
     if oSelf.__o0LicenseCheckResult:
-      assert oSelf.__oLicenseRegistryCache.fbSetLicenseCheckResult(oSelf.__o0LicenseCheckResult), \
-          "Cannot write to registry";
+      oSelf.__oLicenseRegistryCache.fSetLicenseCheckResult(oSelf.__o0LicenseCheckResult);
     return oSelf.sLicenseServerError;
   
-  def fbWriteToRegistry(oSelf):
-    return oSelf.__oLicenseRegistryCache.fbSetLicenseBlock(oSelf.sbLicenseBlock);
-  def fbRemoveFromRegistry(oSelf):
-    return oSelf.__oLicenseRegistryCache.fbRemove();
+  def fWriteToRegistry(oSelf):
+    oSelf.__oLicenseRegistryCache.fSetLicenseBlock(oSelf.sbLicenseBlock);
+  def fbRemoveFromRegistry(oSelf, bThrowErrors = False):
+    return oSelf.__oLicenseRegistryCache.fbRemove(bThrowErrors = bThrowErrors);
   
   @property
   def bIsValid(oSelf):
