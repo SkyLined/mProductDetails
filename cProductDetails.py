@@ -111,7 +111,7 @@ class cProductDetails(iObjectWithInheritingDataStructure):
     oSelf.a0sDebugAdditionalProductNames = a0sDebugAdditionalProductNames;
     
     oSelf.s0InstallationFolderPath = None;
-    oSelf.__oLicense = None;
+    oSelf.__o0License = None;
     oSelf.__o0LatestProductDetailsFromRepository = None;
     oSelf.__bCheckedWithServer = False;
   
@@ -135,10 +135,10 @@ class cProductDetails(iObjectWithInheritingDataStructure):
     return True;
   
   @property
-  def oLicense(oSelf):
-    if oSelf.__oLicense is None:
-      oSelf.__oLicense = foGetLicenseCollectionForAllLoadedProducts().foGetLicenseForProductDetails(oSelf);
-    return oSelf.__oLicense;
+  def o0License(oSelf):
+    if oSelf.__o0License is None:
+      oSelf.__o0License = foGetLicenseCollectionForAllLoadedProducts().fo0GetLicenseForProductDetails(oSelf);
+    return oSelf.__o0License;
   
   @property
   def bRequiresLicense(oSelf):
