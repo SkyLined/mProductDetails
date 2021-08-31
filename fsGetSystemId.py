@@ -1,14 +1,14 @@
 import hashlib, os, uuid;
 from mRegistry import cRegistryValue;
 
-def fsHKLMValue(sKeyName, sValueName):
-  oRegistryValue = cRegistryValue.foGet(sHiveName = "HKLM", sKeyName = sKeyName, sValueName = sValueName);
+def fsHKLMValue(sKeyPath, sValueName):
+  oRegistryValue = cRegistryValue.foGet(sHiveName = "HKLM", sKeyPath = sKeyPath, sValueName = sValueName);
   if not oRegistryValue:
-    oRegistryValue = cRegistryValue.foGet(sHiveName = "HKLM", sKeyName = sKeyName, sValueName = sValueName, uRegistryBits = 64);
+    oRegistryValue = cRegistryValue.foGet(sHiveName = "HKLM", sKeyPath = sKeyPath, sValueName = sValueName, uRegistryBits = 64);
     assert oRegistryValue, \
-        "Cannot read HKLM\%s\%s" % (sKeyName, sValueName);
+        "Cannot read HKLM\%s\%s" % (sKeyPath, sValueName);
   assert oRegistryValue.sTypeName == "REG_SZ", \
-      r"Expected HKLM\%s\%s to be REG_SZ, got %s" % (sKeyName, sValueName, oRegistryValue.sTypeName);
+      r"Expected HKLM\%s\%s to be REG_SZ, got %s" % (sKeyPath, sValueName, oRegistryValue.sTypeName);
   return oRegistryValue.xValue;
 
 # Generate a unique system id. We want this to be a value that is unique to this machine and user account. The server

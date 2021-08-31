@@ -24,40 +24,31 @@ def foGetDateValue(oRegistryHiveKey, sValueName):
     return None;
   return cDate.foFromString(oRegistryValue.xValue);
 # Create some convenience functions for setting values:
-def fbSetStringValue(oRegistryHiveKey, sValueName, sValue):
-  bResult = oRegistryHiveKey.foSetValueForName(
+def fSetStringValue(oRegistryHiveKey, sValueName, sValue):
+  oRegistryHiveKey.foSetValueForName(
     sValueName = sValueName, 
     sTypeName = "REG_SZ",
     xValue = sValue,
   ) is not None;
-  if gbShowDebugOutput and not bResult:
-    print("Cannot write %s = %s to registry" % (sValueName, repr(sValue)));
-  return bResult;
-def fbSetBooleanValue(oRegistryHiveKey, sValueName, bValue):
-  bResult = oRegistryHiveKey.foSetValueForName(
+def fSetBooleanValue(oRegistryHiveKey, sValueName, bValue):
+  oRegistryHiveKey.foSetValueForName(
     sValueName = sValueName,
     sTypeName = "REG_DWORD",
     xValue = bValue and 1 or 0,
   );
-  if gbShowDebugOutput and not bResult:
-    print("Cannot write %s = %s to registry" % (sValueName, repr(bValue)));
-  return bResult;
-def fbSetDateValue(oRegistryHiveKey, sValueName, oValue):
-  bResult = oRegistryHiveKey.foSetValueForName(
+def fSetDateValue(oRegistryHiveKey, sValueName, oValue):
+  oRegistryHiveKey.foSetValueForName(
     sValueName = sValueName, 
     sTypeName = "REG_SZ",
     xValue = oValue.fsToString(),
-  ) is not None;
-  if gbShowDebugOutput and not bResult:
-    print("Cannot write %s = %s to registry" % (sValueName, repr(oValue)));
-  return bResult;
+  );
 
 class cLicenseRegistryCache(object):
   @staticmethod
   def faoReadLicensesFromRegistry():
     oProductLicensesRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = gsProductLicensesKeyPath,
+      sKeyPath = gsProductLicensesKeyPath,
     );
     oProductLicensesRegistryHiveKey.fbCreate(); # Make sure this key exists.
     aoLoadedLicenses = [];
@@ -90,28 +81,27 @@ class cLicenseRegistryCache(object):
   def foGetFirstRunDate(sProductName):
     oProductRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = gsProductFirstRunKeyPath,
+      sKeyPath = gsProductFirstRunKeyPath,
     );
     return foGetDateValue(oProductRegistryHiveKey, sProductName);
   
   @staticmethod
-  def foGetOrSetFirstRunDate(sProductName):
+  def foGetOrSetFirstRunDate(sProductName, bThrowErrors = False):
     oFirstRunDate = cLicenseRegistryCache.foGetFirstRunDate(sProductName);
     if not oFirstRunDate:
       oProductRegistryHiveKey = cRegistryHiveKey(
         sHiveName = "HKCU",
-        sKeyName = gsProductFirstRunKeyPath,
+        sKeyPath = gsProductFirstRunKeyPath,
       );
       oFirstRunDate = cDate.foNow();
-      if not fbSetDateValue(oProductRegistryHiveKey, sProductName, oFirstRunDate):
-        return None;
+      fSetDateValue(oProductRegistryHiveKey, sProductName, oFirstRunDate, bThrowErrors = bThrowErrors);
     return oFirstRunDate;
   
   def __init__(oSelf, oLicense):
     # Open the registry
     oSelf.__oRegistryHiveKey = cRegistryHiveKey(
       sHiveName = "HKCU",
-      sKeyName = "%s\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
+      sKeyPath = "%s\\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
     );
   
   def fo0GetLicenseCheckResult(oSelf):
@@ -124,15 +114,15 @@ class cLicenseRegistryCache(object):
       sDataNameInError = "%s\\sLicensesCheckResult" % oSelf.__oRegistryHiveKey.sFullPath
     );
   
-  def fbSetLicenseBlock(oSelf, sbLicenseBlock):
-    return fbSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
+  def fSetLicenseBlock(oSelf, sbLicenseBlock):
+    return fSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
   
-  def fbSetLicenseCheckResult(oSelf, oLicenseCheckResult):
+  def fSetLicenseCheckResult(oSelf, oLicenseCheckResult):
     sbJSON = oLicenseCheckResult.fsbConvertToJSONString("License check result");
-    return fbSetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult", str(sbJSON, "ascii", "strict"));
+    return fSetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult", str(sbJSON, "ascii", "strict"));
   
-  def fbRemove(oSelf):
-    return oSelf.__oRegistryHiveKey.fbDelete();
+  def fbRemove(oSelf, bThrowErrors = False):
+    return oSelf.__oRegistryHiveKey.fbDelete(bThrowErrors = bThrowErrors);
   
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
