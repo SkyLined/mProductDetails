@@ -91,7 +91,7 @@ class cLicenseCollection(object):
     oSelf.__tasErrorsAndWarnings = (asLicenseErrors, asLicenseWarnings);
     return oSelf.__tasErrorsAndWarnings;
   
-  def foGetLicenseForProductDetails(oSelf, oProductDetails):
+  def fo0GetLicenseForProductDetails(oSelf, oProductDetails):
     # Return a valid active license for the product or None.
     assert oProductDetails in oSelf.aoProductDetails, \
         "Product %s is not in the license collection!?" % oProductDetails.sProductName;
