@@ -62,9 +62,8 @@ def foGetLicenseCollectionForAllLoadedProducts():
         else:
           if gbShowDebugOutput: print("  * %s for %s (already cached in registry)" % (oLicenseFromFile.sLicenseId, "/".join(oLicenseFromFile.asProductNames)));
           bWriteToRegistry = False;
-        if bWriteToRegistry and not oLicenseFromFile.fbWriteToRegistry():
-          asWarnings.append("The license with id %s for product %s from file %s could not be cached in the registry." % \
-              (oLicenseFromFile.sLincenseId, "/".join(oLicenseFromFile.asProductNames), sLicenseFilePath));
+        if bWriteToRegistry:
+          oLicenseFromFile.fWriteToRegistry();
   # For products that have no active, valid license: add all licenses stored in files in the root folder of each product
   goLicenseCollectionForAllLoadedProducts = \
       cLicenseCollection(aoLoadedProductDetails, aoLoadedProductLicenses, asErrors, asWarnings);
