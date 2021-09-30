@@ -99,16 +99,16 @@ class cProductDetails(iObjectWithInheritingDataStructure):
     oSelf.sProductAuthor = sProductAuthor;
     oSelf.asProductTypes = asProductTypes;
     oSelf.s0PythonModuleName = s0PythonModuleName;
-    oSelf.a0sPythonApplicationNames = a0sPythonApplicationNames;
-    oSelf.a0sJavaScriptModuleNames = a0sJavaScriptModuleNames;
-    oSelf.a0sPHPModuleNames = a0sPHPModuleNames;
+    oSelf.a0sPythonApplicationNames = a0sPythonApplicationNames and sorted(a0sPythonApplicationNames);
+    oSelf.a0sJavaScriptModuleNames = a0sJavaScriptModuleNames and sorted(a0sJavaScriptModuleNames)
+    oSelf.a0sPHPModuleNames = a0sPHPModuleNames and sorted(a0sPHPModuleNames);
     oSelf.sb0ProductURL = sb0ProductURL;
     oSelf.o0TrialPeriodDuration = o0TrialPeriodDuration;
     oSelf.sb0LicenseServerURL = sb0LicenseServerURL;
     oSelf.o0Repository = o0Repository;
-    oSelf.a0sDependentOnProductNames = a0sDependentOnProductNames;
-    oSelf.a0sReleaseAdditionalProductNames = a0sReleaseAdditionalProductNames;
-    oSelf.a0sDebugAdditionalProductNames = a0sDebugAdditionalProductNames;
+    oSelf.a0sDependentOnProductNames = a0sDependentOnProductNames and sorted(a0sDependentOnProductNames);
+    oSelf.a0sReleaseAdditionalProductNames = a0sReleaseAdditionalProductNames and sorted(a0sReleaseAdditionalProductNames);
+    oSelf.a0sDebugAdditionalProductNames = a0sDebugAdditionalProductNames and sorted(a0sDebugAdditionalProductNames);
     
     oSelf.s0InstallationFolderPath = None;
     oSelf.__o0License = None;
