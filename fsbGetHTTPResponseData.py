@@ -23,17 +23,17 @@ def fsbGetHTTPResponseData(sbURL, sb0PostData = None, sURLNameInException = None
       "%s does not have a valid URL (URL: %s, error: %s)" % (sURLNameInException, repr(sbURL), repr(oException))
     );
   if oURL.scheme == "https":
-    sCertificateFilePath = dsCertificateFilePath_by_sHostname.get(oURL.hostname);
-    if sCertificateFilePath:
+    s0CertificateFilePath = dsCertificateFilePath_by_sHostname.get(oURL.hostname);
+    if s0CertificateFilePath:
       # For use with site-pinning.
-      oSSLContext = ssl.create_default_context(cafile = sCertificateFilePath);
+      o0SSLContext = ssl.create_default_context(cafile = s0CertificateFilePath);
     else:
-      oSSLContext = ssl.create_default_context();
-      oSSLContext.load_default_certs();
+      o0SSLContext = ssl.create_default_context();
+      o0SSLContext.load_default_certs();
   else:
-    oSSLContext = None;
+    o0SSLContext = None;
   try:
-    oHTTPRequest = urllib.request.urlopen(sURL, sb0PostData, context = oSSLContext);
+    oHTTPRequest = urllib.request.urlopen(sURL, sb0PostData, context = o0SSLContext);
   except urllib.error.HTTPError as oHTTPException:
     raise cServerResponseException(
       "%s could not be contacted (error: %s)" % (sURLNameInException, repr(oHTTPException)),
