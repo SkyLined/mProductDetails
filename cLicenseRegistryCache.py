@@ -29,7 +29,7 @@ def fSetStringValue(oRegistryHiveKey, sValueName, sValue):
     sValueName = sValueName, 
     sTypeName = "REG_SZ",
     xValue = sValue,
-  ) is not None;
+  );
 def fSetBooleanValue(oRegistryHiveKey, sValueName, bValue):
   oRegistryHiveKey.foSetValueForName(
     sValueName = sValueName,
