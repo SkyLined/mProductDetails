@@ -86,7 +86,7 @@ class cLicenseRegistryCache(object):
     return foGetDateValue(oProductRegistryHiveKey, sProductName);
   
   @staticmethod
-  def foGetOrSetFirstRunDate(sProductName, bThrowErrors = False):
+  def foGetOrSetFirstRunDate(sProductName):
     oFirstRunDate = cLicenseRegistryCache.foGetFirstRunDate(sProductName);
     if not oFirstRunDate:
       oProductRegistryHiveKey = cRegistryHiveKey(
@@ -94,7 +94,7 @@ class cLicenseRegistryCache(object):
         sKeyPath = gsProductFirstRunKeyPath,
       );
       oFirstRunDate = cDate.foNow();
-      fSetDateValue(oProductRegistryHiveKey, sProductName, oFirstRunDate, bThrowErrors = bThrowErrors);
+      fSetDateValue(oProductRegistryHiveKey, sProductName, oFirstRunDate);
     return oFirstRunDate;
   
   def __init__(oSelf, oLicense):
