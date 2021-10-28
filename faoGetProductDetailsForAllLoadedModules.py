@@ -10,7 +10,7 @@ def faoGetProductDetailsForAllLoadedModules():
     if oExistingProductDetails:
       assert oProductDetails.s0InstallationFolderPath == oExistingProductDetails.s0InstallationFolderPath, \
           "%s is loaded from both %s and %s!?" % \
-          (oProductDetails.s0InstallationFolderPath, oExistingProductDetails.s0InstallationFolderPath);
+          (oProductDetails.sProductName, oProductDetails.s0InstallationFolderPath, oExistingProductDetails.s0InstallationFolderPath);
     else:
       gdoProductDetails_by_sProductName[oProductDetails.sProductName] = oProductDetails;
   return list(gdoProductDetails_by_sProductName.values());
