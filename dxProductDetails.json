@@ -1,15 +1,15 @@
 {
   "a0sDebugAdditionalProductNames": [
-    "mFileSystemItem",
+    "mConsole",
     "mDebugOutput",
-    "mNotProvided",
-    "mConsole"
+    "mFileSystemItem",
+    "mNotProvided"
   ],
   "a0sDependentOnProductNames": [
     "mDateTime",
+    "mHumanReadable",
     "mRegistry",
-    "mWindowsSDK",
-    "mHumanReadable"
+    "mWindowsSDK"
   ],
   "asProductTypes": [
     "Python module"
@@ -21,7 +21,7 @@
     "sbRepositoryName": "mProductDetails",
     "sbUserName": "SkyLined"
   },
-  "oProductVersion": "2021-07-30 12:09",
+  "oProductVersion": "2021-10-29 09:59",
   "s0PythonModuleName": "mProductDetails",
   "sProductAuthor": "SkyLined",
   "sProductName": "mProductDetails",
