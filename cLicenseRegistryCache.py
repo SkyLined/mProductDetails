@@ -9,20 +9,20 @@ gbShowDebugOutput = False;
 
 # Create some convenience functions for getting values:
 def fsGetStringValue(oRegistryHiveKey, sValueName):
-  oRegistryValue = oRegistryHiveKey.foGetValueForName(sValueName);
-  if oRegistryValue is None or oRegistryValue.sTypeName != "REG_SZ":
+  o0RegistryValue = oRegistryHiveKey.fo0GetValueForName(sValueName);
+  if o0RegistryValue is None or o0RegistryValue.sTypeName != "REG_SZ":
     return None;
-  return oRegistryValue.xValue;
+  return o0RegistryValue.xValue;
 def fbGetBooleanValue(oRegistryHiveKey, sValueName):
-  oRegistryValue = oRegistryHiveKey.foGetValueForName(sValueName);
-  if oRegistryValue is None or oRegistryValue.sTypeName != "REG_DWORD":
+  o0RegistryValue = oRegistryHiveKey.fo0GetValueForName(sValueName);
+  if o0RegistryValue is None or o0RegistryValue.sTypeName != "REG_DWORD":
     return None;
-  return {0: False, 1: True}[oRegistryValue.xValue];
+  return {0: False, 1: True}[o0RegistryValue.xValue];
 def foGetDateValue(oRegistryHiveKey, sValueName):
-  oRegistryValue = oRegistryHiveKey.foGetValueForName(sValueName);
-  if oRegistryValue is None or oRegistryValue.sTypeName != "REG_SZ":
+  o0RegistryValue = oRegistryHiveKey.fo0GetValueForName(sValueName);
+  if o0RegistryValue is None or o0RegistryValue.sTypeName != "REG_SZ":
     return None;
-  return cDate.foFromString(oRegistryValue.xValue);
+  return cDate.foFromString(o0RegistryValue.xValue);
 # Create some convenience functions for setting values:
 def fSetStringValue(oRegistryHiveKey, sValueName, sValue):
   oRegistryHiveKey.foSetValueForName(
