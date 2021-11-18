@@ -23,6 +23,7 @@ math
 msvcrt
 nturl2path
 opcode
+pathlib
 platform
 posixpath
 quopri
@@ -41,7 +42,6 @@ threading
 token
 tokenize
 traceback
-typing
 urllib
 uu
 uuid
