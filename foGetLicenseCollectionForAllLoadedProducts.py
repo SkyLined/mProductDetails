@@ -1,6 +1,6 @@
 import os;
 
-gsDefaultLicenseFileName = "#License.asc";
+gsDefaultLicenseFileName = "#license.asc";
 goLicenseCollectionForAllLoadedProducts = None;
 gbShowDebugOutput = False;
 
