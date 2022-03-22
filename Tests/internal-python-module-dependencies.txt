@@ -23,7 +23,6 @@ math
 msvcrt
 nturl2path
 opcode
-pathlib
 platform
 posixpath
 quopri
@@ -47,4 +46,3 @@ uu
 uuid
 warnings
 weakref
-zipfile
