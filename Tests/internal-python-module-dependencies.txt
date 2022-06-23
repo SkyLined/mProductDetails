@@ -40,7 +40,6 @@ tempfile
 threading
 token
 tokenize
-traceback
 urllib
 uu
 uuid
