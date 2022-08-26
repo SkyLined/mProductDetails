@@ -28,6 +28,8 @@ class cProductDetails(iObjectWithInheritingDataStructure):
     if mProductModule in cProductDetails.__do0ProductDetails_by_mModule:
       return cProductDetails.__do0ProductDetails_by_mModule[mProductModule];
     if hasattr(mProductModule, "__file__"): # This is not a built-in module
+      assert mProductModule.__file__ is not None, \
+        "__file__ is None for %s" % repr(mProductModule);
       sProductFolderPath = os.path.normpath(os.path.abspath(os.path.dirname(mProductModule.__file__)));
       o0ProductDetails = cProductDetails.fo0ReadForFolderPath(sProductFolderPath);
     else:
