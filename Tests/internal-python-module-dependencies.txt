@@ -20,7 +20,6 @@ linecache
 locale
 lzma
 math
-msvcrt
 nturl2path
 opcode
 platform
@@ -30,18 +29,15 @@ random
 select
 selectors
 shutil
-signal
 socket
 ssl
 string
 struct
-subprocess
 tempfile
 threading
 token
 tokenize
 urllib
-uu
 uuid
 warnings
 weakref
