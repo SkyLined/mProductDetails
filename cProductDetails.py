@@ -27,9 +27,10 @@ class cProductDetails(iObjectWithInheritingDataStructure):
     # Load and return product details for a specific module (if it has them).
     if mProductModule in cProductDetails.__do0ProductDetails_by_mModule:
       return cProductDetails.__do0ProductDetails_by_mModule[mProductModule];
-    if hasattr(mProductModule, "__file__"): # This is not a built-in module
-      assert mProductModule.__file__ is not None, \
-        "__file__ is None for %s" % repr(mProductModule);
+    if (
+      hasattr(mProductModule, "__file__") # This is not a built-in module
+      and mProductModule.__file__ is not None # or a module loaded by the user that `__file__` set to None.
+    ): 
       sProductFolderPath = os.path.normpath(os.path.abspath(os.path.dirname(mProductModule.__file__)));
       o0ProductDetails = cProductDetails.fo0ReadForFolderPath(sProductFolderPath);
     else:
