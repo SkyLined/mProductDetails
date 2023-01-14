@@ -236,6 +236,5 @@ class cLicense(object):
           (fsArrayToHumanReadableString(oSelf.asProductNames), oSelf.sLicenseSource, oSelf.sLicenseId));
     return asLicenseWarnings;
 
-from .cLicenseServer import cLicenseServer;
 from .cLicenseRegistryCache import cLicenseRegistryCache;
 from .mExceptions import *;
