@@ -1,15 +1,17 @@
 {
+  "a0sReleaseAdditionalProductNames": [
+    "mRegistry",
+    "mWindowsSDK"
+  ],
   "a0sDebugAdditionalProductNames": [
-    "mConsole",
+      "mConsole",
     "mDebugOutput",
     "mFileSystemItem",
     "mNotProvided"
   ],
   "a0sDependentOnProductNames": [
     "mDateTime",
-    "mHumanReadable",
-    "mRegistry",
-    "mWindowsSDK"
+    "mHumanReadable"
   ],
   "asProductTypes": [
     "Python module"
