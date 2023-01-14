@@ -46,7 +46,9 @@ def fSetDateValue(oRegistryHiveKey, sValueName, oValue):
 class cLicenseRegistryCache(object):
   @staticmethod
   def faoReadLicensesFromRegistry():
-    oProductLicensesRegistryHiveKey = cRegistryHiveKey(
+    if c0RegistryHiveKey is None:
+      return [];
+    oProductLicensesRegistryHiveKey = c0RegistryHiveKey(
       sHiveName = "HKCU",
       sKeyPath = gsProductLicensesKeyPath,
     );
@@ -79,7 +81,9 @@ class cLicenseRegistryCache(object):
   
   @staticmethod
   def foGetFirstRunDate(sProductName):
-    oProductRegistryHiveKey = cRegistryHiveKey(
+    if c0RegistryHiveKey is None:
+      raise NotImplementedError();
+    oProductRegistryHiveKey = c0RegistryHiveKey(
       sHiveName = "HKCU",
       sKeyPath = gsProductFirstRunKeyPath,
     );
@@ -87,9 +91,11 @@ class cLicenseRegistryCache(object):
   
   @staticmethod
   def foGetOrSetFirstRunDate(sProductName):
+    if c0RegistryHiveKey is None:
+      raise NotImplementedError();
     oFirstRunDate = cLicenseRegistryCache.foGetFirstRunDate(sProductName);
     if not oFirstRunDate:
-      oProductRegistryHiveKey = cRegistryHiveKey(
+      oProductRegistryHiveKey = c0RegistryHiveKey(
         sHiveName = "HKCU",
         sKeyPath = gsProductFirstRunKeyPath,
       );
@@ -98,13 +104,16 @@ class cLicenseRegistryCache(object):
     return oFirstRunDate;
   
   def __init__(oSelf, oLicense):
-    # Open the registry
-    oSelf.__oRegistryHiveKey = cRegistryHiveKey(
-      sHiveName = "HKCU",
-      sKeyPath = "%s\\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
-    );
+    if c0RegistryHiveKey is not None:
+      # Open the registry
+      oSelf.__oRegistryHiveKey = c0RegistryHiveKey(
+        sHiveName = "HKCU",
+        sKeyPath = "%s\\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
+      );
   
   def fo0GetLicenseCheckResult(oSelf):
+    if c0RegistryHiveKey is None:
+      return None;
     # Read the values, return None if one is missing
     s0LicensesCheckResult = fsGetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult");
     if s0LicensesCheckResult is None:
@@ -115,15 +124,24 @@ class cLicenseRegistryCache(object):
     );
   
   def fSetLicenseBlock(oSelf, sbLicenseBlock):
-    return fSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
+    if c0RegistryHiveKey is None:
+      return;
+    fSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
   
   def fSetLicenseCheckResult(oSelf, oLicenseCheckResult):
+    if c0RegistryHiveKey is None:
+      return;
     sbJSON = oLicenseCheckResult.fsbConvertToJSONString("License check result");
-    return fSetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult", str(sbJSON, "ascii", "strict"));
+    fSetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult", str(sbJSON, "ascii", "strict"));
   
   def fbRemove(oSelf, bThrowErrors = False):
+    if c0RegistryHiveKey is None:
+      return True;
     return oSelf.__oRegistryHiveKey.fbDelete(bThrowErrors = bThrowErrors);
   
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
-from mRegistry import cRegistryHiveKey;
+try:
+  from mRegistry import cRegistryHiveKey as c0RegistryHiveKey;
+except ModuleNotFoundError:
+  c0RegistryHiveKey = None;
