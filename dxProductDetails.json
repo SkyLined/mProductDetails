@@ -1,10 +1,6 @@
 {
-  "a0sReleaseAdditionalProductNames": [
-    "mRegistry",
-    "mWindowsSDK"
-  ],
   "a0sDebugAdditionalProductNames": [
-      "mConsole",
+    "mConsole",
     "mDebugOutput",
     "mFileSystemItem",
     "mNotProvided"
@@ -12,6 +8,10 @@
   "a0sDependentOnProductNames": [
     "mDateTime",
     "mHumanReadable"
+  ],
+  "a0sReleaseAdditionalProductNames": [
+    "mRegistry",
+    "mWindowsSDK"
   ],
   "asProductTypes": [
     "Python module"
@@ -23,7 +23,7 @@
     "sbRepositoryName": "mProductDetails",
     "sbUserName": "SkyLined"
   },
-  "oProductVersion": "2023-01-11 10:32",
+  "oProductVersion": "2023-01-30 11:58",
   "s0PythonModuleName": "mProductDetails",
   "sProductAuthor": "SkyLined",
   "sProductName": "mProductDetails",
