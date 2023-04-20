@@ -1,4 +1,4 @@
-import json, os;
+import json;
 
 try:
   from mNotProvided import fAssertTypes as f0AssertTypes;
@@ -7,9 +7,11 @@ except ModuleNotFoundError as oException:
     raise;
   f0AssertTypes = None;
 
+from .mExceptions import cJSONDataSyntaxException;
 # The rest of the imports are at the end to prevent import loops.
 
 class cDataStructure(object):
+  cJSONDataSyntaxException = cJSONDataSyntaxException;
   def __init__(oSelf, xStructureDetails, f0oConstructor = None):
     oSelf.xStructureDetails = xStructureDetails;
     oSelf.f0oConstructor = f0oConstructor;
@@ -26,7 +28,7 @@ class cDataStructure(object):
     try:
       xJSONData = json.loads(sbJSONData);
     except:
-      raise cJSONDataSyntaxException("%s does not contain valid JSON" % sDataNameInError);
+      raise oSelf.cJSONDataSyntaxException("%s does not contain valid JSON" % sDataNameInError);
     xData = oSelf.fxConvertFromJSONData(xJSONData, sDataNameInError, s0BasePath, dxInheritingValues);
     return xData;
     
@@ -71,4 +73,3 @@ class cDataStructure(object):
 
 from .fxConvertFromJSONData import fxConvertFromJSONData;
 from .fxConvertToJSONData import fxConvertToJSONData;
-from .mExceptions import *;
