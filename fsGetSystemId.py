@@ -10,9 +10,9 @@ if c0RegistryValue:
     if not oRegistryValue:
       oRegistryValue = c0RegistryValue.foGet(sHiveName = "HKLM", sKeyPath = sKeyPath, sValueName = sValueName, uRegistryBits = 64);
       assert oRegistryValue, \
-          "Cannot read HKLM\%s\%s" % (sKeyPath, sValueName);
+          "Cannot read HKLM\\%s\\%s" % (sKeyPath, sValueName);
     assert oRegistryValue.sTypeName == "REG_SZ", \
-        r"Expected HKLM\%s\%s to be REG_SZ, got %s" % (sKeyPath, sValueName, oRegistryValue.sTypeName);
+        "Expected HKLM\\%s\\%s to be REG_SZ, got %s" % (sKeyPath, sValueName, oRegistryValue.sTypeName);
     return oRegistryValue.xValue;
 
   # Generate a unique system id. We want this to be a value that is unique to this machine and user account. The server
@@ -45,9 +45,9 @@ if c0RegistryValue:
     uMAC = 0;
 
   asUniqueValues = [
-    fsHKLMValue(r"SOFTWARE\Microsoft\Cryptography", "MachineGuid"),  # Windows installation id gathered from the registry
+    fsHKLMValue("SOFTWARE\\Microsoft\\Cryptography", "MachineGuid"),  # Windows installation id gathered from the registry
     "%X" % uMAC,                  # MAC address gather from one of the network interfaces.
-    fsHKLMValue(r"SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName", "ComputerName"), # Machine name gathered from the registry
+    fsHKLMValue("SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ActiveComputerName", "ComputerName"), # Machine name gathered from the registry
     os.getenv("USERNAME"),        # User name gathered from the environment.
   ];
 

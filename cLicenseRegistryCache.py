@@ -1,8 +1,8 @@
 from mDateTime import cDate;
 # The rest of the imports are at the end to prevent import loops.
 
-gsProductLicensesKeyPath = "Software\SkyLined\Licenses";
-gsProductFirstRunKeyPath = "Software\SkyLined\FirstRunDate";
+gsProductLicensesKeyPath = "Software\\SkyLined\\Licenses";
+gsProductFirstRunKeyPath = "Software\\SkyLined\\FirstRunDate";
 
 gbShowDebugOutput = False;
 # Optional TODO: cleanup the registry by removing cached data for expired certificates.
