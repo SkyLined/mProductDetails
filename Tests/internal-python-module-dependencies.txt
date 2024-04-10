@@ -40,5 +40,4 @@ token
 tokenize
 urllib
 uuid
-warnings
 weakref
