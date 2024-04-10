@@ -5,7 +5,7 @@ grVersion = re.compile(r"^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$");
 class cVersion(object):
   @staticmethod
   def foNew():
-    oNow = datetime.datetime.utcnow();
+    oNow = datetime.datetime.now(datetime.UTC);
     return cVersion(oNow.year, oNow.month, oNow.day, oNow.hour, oNow.minute);
   @staticmethod
   def fo0FromString(s0Version):
