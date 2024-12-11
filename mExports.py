@@ -9,10 +9,26 @@ from .fo0GetProductDetailsForModule import fo0GetProductDetailsForModule;
 from .ftasGetLicenseErrorsAndWarnings import ftasGetLicenseErrorsAndWarnings;
 from .fsGetSystemId import fsGetSystemId;
 from .fWriteLicensesToProductFolder import fWriteLicensesToProductFolder;
+from .mExceptions import (
+  cProductDetailsException,
+  cServerResponseException,
+  cJSONDataException,
+  cJSONDataSyntaxException,
+  cJSONDataVersionException,
+  cJSONDataTypeException,
+  cLicenseSyntaxErrorException,
+);
 
 __all__ = [
+  "cJSONDataException",
+  "cJSONDataSyntaxException",
+  "cJSONDataTypeException",
+  "cJSONDataVersionException",
   "cLicenseServer",
+  "cLicenseSyntaxErrorException",
   "cProductDetails",
+  "cProductDetailsException",
+  "cServerResponseException",
   "faoGetLicensesFromFile",
   "faoGetLicensesFromRegistry",
   "faoGetProductDetailsForAllLoadedModules",
