@@ -1,6 +1,12 @@
 from mDateTime import cDate;
 # The rest of the imports are at the end to prevent import loops.
 
+# The code originally used HKEY_CURRENT_USER to store data but this has changed
+# to prefer using HKEY_LOCAL_MACHINE. We want the license to be accessible to
+# processes running as a different user on this machine. e.g. BugId can run as
+# SYSTEM when it's installed as the JIT debugger. A normal user doesn't have
+# write access to that location though, so the code should write to both.
+
 gsProductLicensesKeyPath = "Software\\SkyLined\\Licenses";
 gsProductFirstRunKeyPath = "Software\\SkyLined\\FirstRunDate";
 
@@ -48,36 +54,48 @@ class cLicenseRegistryCache(object):
   def faoReadLicensesFromRegistry():
     if c0RegistryHiveKey is None:
       return [];
-    oProductLicensesRegistryHiveKey = c0RegistryHiveKey(
-      sHiveName = "HKCU",
-      sKeyPath = gsProductLicensesKeyPath,
-    );
-    oProductLicensesRegistryHiveKey.fbCreate(); # Make sure this key exists.
-    aoLoadedLicenses = [];
+    doLoadedLicense_by_sId = {};
     # Each product has its own sub-key under the main registry key
     # Sanity check everything; discard anything that is not as it should be.
-    for (sLicenseId, oLicenseRegistryHiveKey) in oProductLicensesRegistryHiveKey.doSubKey_by_sName.items():
-      o0LicenseBlockRegistryNamedValue = oLicenseRegistryHiveKey.fo0GetNamedValue(sValueName = "sLicenseBlock");
-      # Read the license block from the registry and parse it.
-      if o0LicenseBlockRegistryNamedValue is not None:
-        oLicenseBlockRegistryValue = o0LicenseBlockRegistryNamedValue.foGet();
-        if oLicenseBlockRegistryValue.sTypeName == "REG_SZ":
-          aoLicenses = cLicense.faoForLicenseBlocks(bytes(oLicenseBlockRegistryValue.xValue, "ascii", "strict"), "registry key %s" % o0LicenseBlockRegistryNamedValue.sFullPath);
-        # The license block should have exactly one license and it should be for the license id it is stored under:
-        if (
-          len(aoLicenses) == 1
-          and aoLicenses[0].sLicenseId == sLicenseId
-        ):
-          aoLoadedLicenses += aoLicenses;
-      # Clean up old registry values that are no longer used.
-      oLicenseRegistryHiveKey.fbDeleteValueForName("bLicenseIsValid");
-      oLicenseRegistryHiveKey.fbDeleteValueForName("bLicenseMayNeedToBeUpdated");
-      oLicenseRegistryHiveKey.fbDeleteValueForName("bInLicensePeriod");
-      oLicenseRegistryHiveKey.fbDeleteValueForName("sLicenseIsRevokedForReason");
-      oLicenseRegistryHiveKey.fbDeleteValueForName("bDeactivatedOnSystem");
-      oLicenseRegistryHiveKey.fbDeleteValueForName("bLicenseInstancesExceeded");
-      oLicenseRegistryHiveKey.fbDeleteValueForName("oNextCheckWithServerDate");
-    return aoLoadedLicenses;
+    for sHiveName in ("HKLM", "HKCU"):
+      oProductLicensesRegistryHiveKey = c0RegistryHiveKey(
+        sHiveName = sHiveName,
+        sKeyPath = gsProductLicensesKeyPath,
+      );
+      if oProductLicensesRegistryHiveKey.bExists:
+        for (sLicenseId, oLicenseRegistryHiveKey) in oProductLicensesRegistryHiveKey.doSubKey_by_sName.items():
+          o0LicenseBlockRegistryNamedValue = oLicenseRegistryHiveKey.fo0GetNamedValue(sValueName = "sLicenseBlock");
+          # Read the license block from the registry and parse it.
+          if o0LicenseBlockRegistryNamedValue is not None:
+            oLicenseBlockRegistryValue = o0LicenseBlockRegistryNamedValue.foGet();
+            if oLicenseBlockRegistryValue.sTypeName == "REG_SZ":
+              aoLicenses = cLicense.faoForLicenseBlocks(
+                bytes(oLicenseBlockRegistryValue.xValue, "ascii", "strict"),
+                "registry key %s" % o0LicenseBlockRegistryNamedValue.sFullPath,
+              );
+            # The license block should have exactly one license and it should be for the license id it is stored under:
+            if (
+              len(aoLicenses) == 1
+              and aoLicenses[0].sLicenseId == sLicenseId
+            ):
+              oLicense = aoLicenses[0];
+              # Check if the license is already loaded, which can happen if it
+              # is stored in both HKLM and HKCU:
+              if sLicenseId not in doLoadedLicense_by_sId:
+                # Add the license to the loaded licenses
+                doLoadedLicense_by_sId[sLicenseId] = oLicense;
+                if sHiveName == "HKCU":
+                  # If this license was loaded from HKCU, it apparently does
+                  # not exist in HKLM, which we checked first.
+                  # We will try to copy it to HKLM, so all users can access it.
+                  # This may fail if the user does not have write access to
+                  # HKLM. The user must run the application with elevated
+                  # privileges for this to succeed.
+                  try:
+                    oLicense.fWriteToRegistry();
+                  except PermissionError:
+                    pass;
+    return doLoadedLicense_by_sId.values();
   
   @staticmethod
   def foGetFirstRunDate(sProductName):
@@ -87,7 +105,9 @@ class cLicenseRegistryCache(object):
       sHiveName = "HKCU",
       sKeyPath = gsProductFirstRunKeyPath,
     );
-    return foGetDateValue(oProductRegistryHiveKey, sProductName);
+    if oProductRegistryHiveKey.bExists:
+      return foGetDateValue(oProductRegistryHiveKey, sProductName);
+    return None;
   
   @staticmethod
   def foGetOrSetFirstRunDate(sProductName):
@@ -106,7 +126,11 @@ class cLicenseRegistryCache(object):
   def __init__(oSelf, oLicense):
     if c0RegistryHiveKey is not None:
       # Open the registry
-      oSelf.__oRegistryHiveKey = c0RegistryHiveKey(
+      oSelf.__oMachineRegistryHiveKey = c0RegistryHiveKey(
+        sHiveName = "HKLM",
+        sKeyPath = "%s\\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
+      );
+      oSelf.__oUserRegistryHiveKey = c0RegistryHiveKey(
         sHiveName = "HKCU",
         sKeyPath = "%s\\%s" % (gsProductLicensesKeyPath, oLicense.sLicenseId),
       );
@@ -115,30 +139,46 @@ class cLicenseRegistryCache(object):
     if c0RegistryHiveKey is None:
       return None;
     # Read the values, return None if one is missing
-    s0LicensesCheckResult = fsGetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult");
-    if s0LicensesCheckResult is None:
-      return None;
+    s0LicensesCheckResult = fsGetStringValue(oSelf.__oMachineRegistryHiveKey, "sLicensesCheckResult");
+    if s0LicensesCheckResult is not None:
+      sRegistryKeyPath = f"{oSelf.__oMachineRegistryHiveKey.sFullPath}\\sLicensesCheckResult";
+    else:
+      s0LicensesCheckResult = fsGetStringValue(oSelf.__oUserRegistryHiveKey, "sLicensesCheckResult");
+      if s0LicensesCheckResult is None:
+        return None;
+      sRegistryKeyPath = f"{oSelf.__oUserRegistryHiveKey.sFullPath}\\sLicensesCheckResult";
     return cLicenseCheckResult.foConstructFromJSONString(
       sbJSON = bytes(s0LicensesCheckResult, "ascii", "strict"),
-      sDataNameInError = "%s\\sLicensesCheckResult" % oSelf.__oRegistryHiveKey.sFullPath
+      sDataNameInError = sRegistryKeyPath,
     );
   
   def fSetLicenseBlock(oSelf, sbLicenseBlock):
     if c0RegistryHiveKey is None:
       return;
-    fSetStringValue(oSelf.__oRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
+    try:
+      fSetStringValue(oSelf.__oMachineRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
+    except PermissionError:
+      pass;
+    fSetStringValue(oSelf.__oUserRegistryHiveKey, "sLicenseBlock", str(sbLicenseBlock, "ascii", "strict"));
   
   def fSetLicenseCheckResult(oSelf, oLicenseCheckResult):
     if c0RegistryHiveKey is None:
       return;
     sbJSON = oLicenseCheckResult.fsbConvertToJSONString("License check result");
-    fSetStringValue(oSelf.__oRegistryHiveKey, "sLicensesCheckResult", str(sbJSON, "ascii", "strict"));
+    fSetStringValue(oSelf.__oUserRegistryHiveKey, "sLicensesCheckResult", str(sbJSON, "ascii", "strict"));
   
   def fbRemove(oSelf, bThrowErrors = False):
     if c0RegistryHiveKey is None:
       return True;
-    return oSelf.__oRegistryHiveKey.fbDelete(bThrowErrors = bThrowErrors);
-  
+    bRemoved = True;
+    for oRegistryHiveKey in (oSelf.__oMachineRegistryHiveKey, oSelf.__oUserRegistryHiveKey):
+      try:
+        if oRegistryHiveKey.bExists and not oRegistryHiveKey.fbDelete(bThrowErrors = bThrowErrors):
+          bRemoved = False;
+      except PermissionError:
+        pass;
+    return bRemoved;
+
 from .cLicense import cLicense;
 from .cLicenseCheckResult import cLicenseCheckResult;
 try:
